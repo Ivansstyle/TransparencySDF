@@ -3,6 +3,7 @@ TARGET = hsitho
 DESTDIR = .
 CONFIG += c++11
 CONFIG -= app_bundle
+CONFIG += console
 
 # QT Specific
 QT += gui
