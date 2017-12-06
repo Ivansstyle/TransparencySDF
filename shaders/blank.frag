@@ -27,20 +27,27 @@ struct TraceResult
   vec3 color;
   float t;
   float d;
+  float o;
 };
 
-/**
+
+/*
  * Signed distance field functions
  * These function were originally written by Inigo Quilez
  * Modified by Teemu Lindborg where needed.
  * [Accessed Decemeber 2016] Available from: http://iquilezles.org/www/articles/distfunctions/distfunctions.htm
  */
-
+// --------------------- OLD IMPLEMENTATION START -----------------------------
 // Sphere
 vec4 sdSphere(vec3 p, float s, vec3 color)
 {
+  mat2x3 res;
+  res[0].x = length(p)-s;
+  res[1] = color;
+
   return vec4(length(p)-s, color);
 }
+
 
 // Box signed exact
 vec4 sdBox(vec3 p, vec3 b, vec3 color)
@@ -48,6 +55,7 @@ vec4 sdBox(vec3 p, vec3 b, vec3 color)
   vec3 d = abs(p) - b;
   return vec4(min(max(d.x,max(d.y,d.z)),0.0) + length(max(d,0.0)), color);
 }
+
 
 // Box fast
 vec4 sdFastBox(vec3 _position, float _w, vec3 color)
@@ -200,13 +208,277 @@ vec3 opRepetition(vec3 p, vec3 c)
   return q;
 }
 
-vec4 map(vec3 _position)
+// --------------------- OLD IMPLEMENTATION END -----------------------------
+
+/**
+  * Modified by Ivans Saponenko (2017)
+  * return type changed to support more data including transparency and one reserved still not used float
+  * structure of return (mat2x3) is {[distance, transparency, reserved][red, green, blue]}
+  * Also input color now supports transparency so changed to vec4 (RGBA)
+  * Now using prefix T to not confuse with any other functions
+  */
+// ---------------------------------- TRANSPARENCY MOD BEGIN --------------------------------
+// Sphere // EDITED
+mat2x3 TsdSphere(vec3 p, float s, vec4 color) // color as vec4
 {
-  vec4 pos = vec4(4.0, 3.0, 4.0, 0.0);
-  return pos;
+  mat2x3 res;
+  res[0].x = length(p)-s;
+  res[0].y = color.w;
+  res[1] = color.xyz;
+  return res; // returning as {[distance, transparency, reserved][vec3(color)]};
 }
 
-// Ray for tracing
+
+// Box signed exact // EDITED
+mat2x3 TsdBox(vec3 p, vec3 b, vec4 color) // color as vec4
+{
+    mat2x3 res;
+  vec3 d = abs(p) - b;
+
+  res[0].x = min(max(d.x,max(d.y,d.z)),0.0) + length(max(d,0.0));
+  res[0].y = color.w;
+  res[1] = color.xyz;
+  return res; // returning as {[distance, transparency, reserved][vec3(color)]};
+}
+
+// Box fast // EDITES
+mat2x3 TsdFastBox(vec3 _position, float _w, vec4 color)
+{
+  mat2x3 res;
+  res[1] = color.xyz;
+  res[0].y = color.w;
+
+  vec3 pos = abs(_position);
+  float dx = pos.x - _w;
+  float dy = pos.y - _w;
+  float dz = pos.z - _w;
+  res[0].x = max(dx, max(dy, dz));
+
+  return res;
+}
+
+// Torus - signed - exact
+mat2x3 TsdTorus(vec3 p, vec2 t, vec4 color)
+{
+  mat2x3 res;
+  res[1] = color.xyz;
+  res[0].y = color.w;
+
+  vec2 q = vec2(length(p.xz)-t.x,p.y);
+
+  res[0].x = length(q)-t.y;
+  return res;
+}
+
+// Cylinder - signed - exact
+mat2x3 TsdCylinder(vec3 p, vec3 c, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+    res[0].x = length(p.xz-c.xy)-c.z;
+    return res;
+}
+
+
+//Cone - signed - exact
+mat2x3 TsdCone(vec3 p, vec2 c, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+  // c must be normalized
+  float q = length(p.xy);
+  res[0].x = dot(c,vec2(q,p.z));
+  return res;
+}
+
+// Plane - signed - exact
+mat2x3 TsdPlane(vec3 p, vec4 n, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+  // n must be normalized
+  res[0].x = dot(p,n.xyz) + n.w;
+  return res;
+}
+
+// Hexagonal Prism - signed - exact
+mat2x3 TsdHexPrism(vec3 p, vec2 h, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+  vec3 q = abs(p);
+  res[0].x = max(q.z-h.y,max((q.x*0.866025+q.y*0.5),q.y)-h.x);
+  return res;
+}
+
+// Triangular Prism - signed - exact
+mat2x3 TsdTriPrism(vec3 p, vec2 h, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+  vec3 q = abs(p);
+  res[0].x = max(q.z-h.y,max(q.x*0.866025+p.y*0.5,-p.y)-h.x*0.5);
+  return res;
+}
+
+// Capsule / Line - signed - exact
+mat2x3 TsdCapsule(vec3 p, vec3 a, vec3 b, float r, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+  vec3 pa = p - a, ba = b - a;
+  float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
+  res[0].x = length( pa -ba*h ) - r;
+  return res;
+}
+
+// Capped cylinder - signed - exact
+mat2x3 TsdCappedCylinder(vec3 p, vec2 h, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+  vec2 d = abs(vec2(length(p.xz),p.y)) - h;
+  res[0].x = min(max(d.x,d.y),0.0) + length(max(d,0.0));
+  return res;
+}
+
+// Capped Cone - signed - bound
+mat2x3 TsdCappedCone(vec3 p, vec3 c, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+  vec2 q = vec2( length(p.xz), p.y );
+  vec2 v = vec2( c.z*c.y/c.x, -c.z );
+  vec2 w = v - q;
+  vec2 vv = vec2( dot(v,v), v.x*v.x );
+  vec2 qv = vec2( dot(v,w), v.x*w.x );
+  vec2 d = max(qv,0.0)*qv/vv;
+  res[0].x = sqrt( dot(w,w) - max(d.x,d.y) ) * sign(max(q.y*v.x-q.x*v.y,w.y));
+  return res;
+}
+
+// Ellipsoid - signed - bound
+mat2x3 TsdEllipsoid(vec3 p, vec3 r, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+  res[0].x = (length( p/r ) - 1.0) * min(min(r.x,r.y),r.z);
+  return res;
+}
+
+/*
+ * Unsigned distance fields
+ */
+// Box unsigned exact
+mat2x3 TudBox(vec3 p, vec3 b, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+    res[0].x = length(max(abs(p)-b,0.0));
+    return res;
+}
+
+// Round Box unsigned exact
+
+mat2x3 TudRoundBox(vec3 p, vec3 b, float r, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+    res[0].x = length(max(abs(p)-b,0.0))-r;
+    return res;
+}
+//float g(float a, float b)
+//{
+//  return a + b + sqrt(a*a + b*b);
+//}
+
+//float w1(float a, float b, float t)
+//{
+//  return g(b, t-1) / (g(a, -t) + g(b, t-1));
+//}
+
+//float w2(float a, float b, float t)
+//{
+//  return g(a, -t) / (g(a, -t) + g(b, t-1));
+//}
+
+//vec3 lerp(vec4 a, vec4 b, float t)
+//{
+////  return t*a.yzw + (1-t)*b.yzw;
+//  return w1(a.x, b.x, t)*a.yzw + w2(a.x, b.x, t)*b.yzw;
+//}
+
+mat2x3 TopBlend(mat2x3 a, mat2x3 b, float k)
+{
+    mat2x3 res;
+    float h = clamp(0.5+0.5*(b[0].x-a[0].x)/k, 0.0, 1.0);
+    float d =  mix(a[0].x, b[0].x, h) - k*h*(1.0-h);
+    res[1] = lerp(vec4(a[0].x, a[1].xyz),vec4(b[0].x, b[1].xyz), h); // SHOULD BE VEC4
+
+    res[0].y = mix(a[0].y, b[0].y, h); // TRANSPARENCY TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    res[0].x = d; // Using mix for now
+    return res;
+}
+
+
+mat2x3 TopUnion(mat2x3 a, mat2x3 b)
+{
+  return a[0].x <= b[0].x ? a : b;
+}
+
+mat2x3 TopIntersection(mat2x3 a, mat2x3 b)
+{
+  return a[0].x >= b[0].x ? a : b;
+}
+
+mat2x3 TopSubtraction(mat2x3 a, mat2x3 b)
+{
+  if (-a[0].x >= b[0].x) {
+      return mat2x3(-a[0].x, a[0].y, a[0].z, a[1].x, a[1].y, a[1].z);
+  }
+  else return b;
+
+  //return -a[0].x >= b[0].x ? mat2x3(-a[0].x, a[0].y, a[0].z,
+  //                                  a[1].x, a[1].y, a[1].z) : b;
+}
+
+vec3 TopRepetition(vec3 p, vec3 c) // What to do with this? // Still the quuestion
+{
+  vec3 q = mod(p,c)-0.5*c;
+  return q;
+}
+
+// ------------------------------- TRANSPARENCY MOD END ----------------------------------------
+// Mapping with transparency
+mat2x3 Tmap(vec3 _position) // mat
+{
+    mat2x3 pos = TopBlend(TsdBox(_position, vec3(2.0, 5.0, 1.5), vec4(0.3, 0.6, 0.6, 0.4)),
+                          TsdBox(_position, vec3(1.0, 3.0, 0.5), vec4(0.3, 0.36, 0.1, 0.4))
+                          ,1.2f);
+    //pos =
+    return pos;
+}
+
+// Old map func
+vec4 map(vec3 _position)
+{
+   vec4 pos = vec4(4.0, 3.0, 4.0, 0.0);
+   pos = sdBox(_position, vec3(1.0, 1.0, 1.0), vec3(0.6, 0.6, 0.6));
+   return pos;
+}
+
+// Ray for tracing // No need to edit 
 mat2x3 createRay(vec3 _origin, vec3 _lookAt, vec3 _upV, vec2 _uv, float _fov, float _aspect)
 {
   mat2x3 ray;
@@ -227,9 +499,10 @@ mat2x3 createRay(vec3 _origin, vec3 _lookAt, vec3 _upV, vec2 _uv, float _fov, fl
   return ray;
 }
 
+
 TraceResult castRay(mat2x3 _ray)
 {
-  TraceResult trace;
+  TraceResult trace; // Tracing, Right? Casting the ray as it is???
   trace.t = 1.f;
   float tmax = 20.f;
   for(int i = 0; i < 64; ++i)
@@ -237,19 +510,21 @@ TraceResult castRay(mat2x3 _ray)
     vec4 r = map(_ray[0] + trace.t * _ray[1]);
     trace.d = r.x;
     trace.color = r.yzw;
+    // CalculateOpacity HOW?
+    trace.o = 0.5f; // Testing
     if(trace.d <= traceprecision || trace.t > tmax) {
       break;
     }
     trace.t += trace.d;
   }
-
   return trace;
 }
 
 vec3 calcNormal(vec3 _position)
 {
   vec3 offset = vec3(0.0005, -0.0005, 1.0);
-  vec3 normal = normalize(offset.xyy*map( _position + offset.xyy ).x +
+  vec3 normal = normalize(offset.
+                          xyy*map( _position + offset.xyy ).x +
                           offset.yyx*map( _position + offset.yyx ).x +
                           offset.yxy*map( _position + offset.yxy ).x +
                           offset.xxx*map( _position + offset.xxx ).x);
@@ -268,7 +543,7 @@ float calcAO(vec3 _position, vec3 _normal)
   {
     float hr = 0.01 + 0.12*float(i)/4.0;
     vec3 aopos = _normal * hr + _position;
-    float dd = map(aopos).x;
+    float dd = map(aopos).x; // Map is here! (AO map)
     occ += -(dd-hr)*sca;
     sca *= 0.95;
   }
@@ -291,6 +566,8 @@ vec3 renderSky(mat2x3 _ray)
   return col;
 }
 
+
+// No map needed
 vec3 applyFog(vec3 color, float distance)
 {
   float fogAmount = 1.0 - exp(-distance*2);
@@ -298,13 +575,14 @@ vec3 applyFog(vec3 color, float distance)
   return mix(color, fogColor, fogAmount);
 }
 
+
 float softshadow(vec3 ro, vec3 rd, float mint, float tmax)
 {
   float res = 1.0;
   float t = mint;
   for(int i = 0; i < 16; ++i)
   {
-    float h = map(ro + normalize(rd)*t).x;
+    float h = Tmap(ro + normalize(rd)*t)[0].x; // Map is here!
     res = min(res, 8.0*h/t);
     t += clamp(h, 0.02, 0.10);
     if(h < traceprecision || t > tmax)
@@ -316,12 +594,12 @@ float softshadow(vec3 ro, vec3 rd, float mint, float tmax)
 // Rendering function
 vec3 render(mat2x3 _ray)
 {
-  TraceResult trace = castRay(_ray);
-  vec3 col = renderSky(_ray);
+  TraceResult trace = castRay(_ray); // 1st RayCast
+  vec3 col = renderSky(_ray); 
 
   if(trace.d <= traceprecision)
   {
-    vec3 p = _ray[0] + trace.t * _ray[1];
+    vec3 p = _ray[0] + trace.t * _ray[1]; // !!! SURFACE !!!
     vec3 n = calcNormal(p);
     vec3 reflection = reflect(_ray[1], n);
     float intensitySum = 0.f;
@@ -334,7 +612,6 @@ vec3 render(mat2x3 _ray)
       float diffuse = clamp(dot(n, lightDir), 0.0, 1.0) * softshadow(p, Lights[i].pos, 0.02, 2.5);
       float ambient = clamp(0.5 + 0.5*n.y, 0.0, 1.0);
       float occlusion = calcAO(p, n);
-
       float specular = pow(clamp(dot(reflection, lightDir), 0.0, 1.0 ), 16.0);
 
       vec3 acc = vec3(0.0);
@@ -356,6 +633,123 @@ vec3 render(mat2x3 _ray)
   return vec3( clamp(col, 0.0, 1.0) );
 }
 
+// --------------------- TRANSPARENCY RENDERING ----------------------------------
+
+// Volume Marching func
+float marchVolume(mat2x3 _ray, TraceResult _tr) // Returns opacity of the pixel
+{
+    mat2x3 tray = _ray;
+    vec4 col = vec4(1.0f);
+    float step = 0.001f;
+    float transparency = 0.0f;
+    float lastDist = _tr.d; // Trace distance decreases until we out of the object  (only for SDF)
+
+    for (int i = 0; i < 16; ++i) // We take 16 samples at the moment
+    {
+        mat2x3 r = Tmap(_ray[0] + step * i * _ray[1]);
+        transparency += r[0].y;
+         // Break if we outside object
+    }
+    return transparency;
+}
+
+TraceResult TcastRay(mat2x3 _ray)
+{
+  TraceResult trace; // Tracing, Right? Casting the ray as it is???
+  trace.t = 1.f;
+  float tmax = 20.f;
+  for(int i = 0; i < 64; ++i)
+  {
+    mat2x3 r = Tmap(_ray[0] + trace.t * _ray[1]);
+    trace.d = r[0].x;
+    trace.color = r[1].rgb;
+
+
+    // CalculateOpacity
+    if(trace.d <= traceprecision) {
+      trace.o = marchVolume(_ray, trace);
+      break;     
+    }
+    else if(trace.t > tmax) break;
+
+    trace.t += trace.d;
+  }
+  return trace; // Opacity returns here
+}
+
+vec3 TcalcNormal(vec3 _position) // Why you so strange normal
+{
+  vec3 offset = vec3(0.0005, -0.0005, 1.0);
+  vec3 normal = normalize(offset.xyy*Tmap( _position + offset.xyy )[0].x +
+                          offset.yyx*Tmap( _position + offset.yyx )[0].x +
+                          offset.yxy*Tmap( _position + offset.yxy )[0].x +
+                          offset.xxx*Tmap( _position + offset.xxx )[0].x);
+  return normalize(normal);
+}
+
+// Rendering function // WIP for transparency
+vec3 Trender(mat2x3 _ray)
+{
+  TraceResult trace = TcastRay(_ray); // 1st RayCast
+
+  vec3 skyCol = renderSky(_ray);
+  vec3 col = skyCol;
+
+  //trace.o = 1.f; // FOR TESTING
+
+  if(trace.d <= traceprecision) // We are on the object
+  {
+    vec3 p = _ray[0] + trace.t * _ray[1]; // !!! SURFACE !!!
+    vec3 n = TcalcNormal(p);
+    vec3 reflection = reflect(_ray[1], n);
+    float intensitySum = 0.f;
+    col = vec3(0.0);
+
+    for(int i = 0; i < 4; ++i) {
+
+      vec3 lightDir = normalize(Lights[i].pos - p);
+
+      float diffuse = clamp(dot(n, lightDir), 0.0, 1.0) * softshadow(p, Lights[i].pos, 0.02, 2.5);
+      float ambient = clamp(0.5 + 0.5*n.y, 0.0, 1.0);
+      float occlusion = calcAO(p, n) * trace.o;
+
+      float specular = pow(clamp(dot(reflection, lightDir), 0.0, 1.0 ), 16.0);
+
+      vec3 acc = vec3(0.0);
+      acc += 1.40 * diffuse * Lights[i].diffuse;
+      acc += 1.20 * ambient * Lights[i].ambient * occlusion;
+      if(i == 0)
+        acc += 2.00 * specular * Lights[i].specular * diffuse;
+
+
+      //Testing
+
+
+      col += trace.color * acc * Lights[i].intensity;
+
+      // Transparency add
+      //col = col * trace.o + skyCol * (1.f - trace.o);
+      //col *= col * 0.9f + skyCol * (1.f - 0.9f); // On edit // Works
+
+      //col += 0.01f * acc * Lights[i].intensity;
+      intensitySum += Lights[i].intensity;
+    }
+    col /= intensitySum;
+    // opacity
+    col = applyFog(col, trace.t/150.f);
+
+
+    // Vigneting
+    vec2 q = o_FragCoord.xy / u_Resolution.xy;
+    col *= 0.5 + 0.5*pow( 16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.25 );
+
+    // Opacity -- Blending
+  }
+  return vec3( clamp(col, 0.0, 1.0) );
+}
+
+// --------------------- TRANSPARENCY RENDERING END ----------------------------------
+
 void main()
 {
   vec3 cameraPosition = u_Camera;
@@ -364,8 +758,9 @@ void main()
   float aspectRatio = u_Resolution.x / u_Resolution.y;
 
   mat2x3 ray = createRay(cameraPosition, lookAt, upVector, o_FragCoord, 90.f, aspectRatio);
-  vec3 color = render(ray);
+  vec3 color = Trender(ray);
 
-  // Gamma correction
+  // Gamma correction NOT
   o_FragColor = vec4(pow(color, vec3(0.4545)), 1.f);
+  //o_FragColor = vec4(color, 1.f);
 }

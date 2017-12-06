@@ -105,6 +105,9 @@
    <addaction name="actionCompile"/>
   </widget>
   <action name="actionCompile">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Compile</string>
    </property>

@@ -42,6 +42,7 @@ public:
         MainWindow->resize(1440, 720);
         actionCompile = new QAction(MainWindow);
         actionCompile->setObjectName(QStringLiteral("actionCompile"));
+        actionCompile->setCheckable(false);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QStringLiteral("centralwidget"));
         SceneWidget = new QWidget(centralwidget);

@@ -39,3 +39,4 @@ DEFINES += NODE_EDITOR_SHARED
 
 QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter \
                           -Wno-unused-function
+# QMAKE_CXXFLAGS_RELEASE += -ffast_math -mfma -O2 -m64

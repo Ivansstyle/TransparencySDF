@@ -186,10 +186,16 @@ namespace hsitho
 				fragmentShader += ";";
 
         fragmentShader += m_shaderEnd;
-        std::cout << fragmentShader<< "\n";
+        std::cout << fragmentShader<< "\n"; // Deconstruct
 
-        m_shaderMan->updateShader(fragmentShader.c_str());
+        std::ifstream testFragShader("shaders/blank.frag");
+        std::string tfshader = std::string((std::istreambuf_iterator<char>(testFragShader)), std::istreambuf_iterator<char>());
+        m_shaderMan->updateShader(tfshader.c_str());
+
+        //Deconstruct
+        //m_shaderMan->updateShader(fragmentShader.c_str());
       }
+      //std::cout<<"shadercode from: Node Changed \n"<< shadercode << "\n"; // Deconstruct
     }
   }
 

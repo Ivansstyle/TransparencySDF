@@ -1,4 +1,4 @@
-    return pos;
+     return pos;
   }
 
   // Ray for tracing
