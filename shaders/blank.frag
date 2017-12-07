@@ -26,7 +26,9 @@ struct TraceResult
 {
   vec3 color;
   float t;
+  float bt;
   float d;
+  float bd;
   float o;
 };
 
@@ -426,18 +428,18 @@ mat2x3 TopBlend(mat2x3 a, mat2x3 b, float k)
     float d =  mix(a[0].x, b[0].x, h) - k*h*(1.0-h);
     res[1] = lerp(vec4(a[0].x, a[1].xyz),vec4(b[0].x, b[1].xyz), h); // SHOULD BE VEC4
 
-    res[0].y = mix(a[0].y, b[0].y, h); // TRANSPARENCY TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ///res[0].y = mix(a[0].y, b[0].y, h); // TRANSPARENCY TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     res[0].x = d; // Using mix for now
     return res;
 }
 
 
-mat2x3 TopUnion(mat2x3 a, mat2x3 b)
+mat2x3 TopUnion(mat2x3 a, mat2x3 b) // MIXING
 {
   return a[0].x <= b[0].x ? a : b;
 }
 
-mat2x3 TopIntersection(mat2x3 a, mat2x3 b)
+mat2x3 TopIntersection(mat2x3 a, mat2x3 b) // MIXING
 {
   return a[0].x >= b[0].x ? a : b;
 }
@@ -463,11 +465,23 @@ vec3 TopRepetition(vec3 p, vec3 c) // What to do with this? // Still the quuesti
 // Mapping with transparency
 mat2x3 Tmap(vec3 _position) // mat
 {
-    mat2x3 pos = TopBlend(TsdBox(_position, vec3(2.0, 5.0, 1.5), vec4(0.3, 0.6, 0.6, 0.4)),
-                          TsdBox(_position, vec3(1.0, 3.0, 0.5), vec4(0.3, 0.36, 0.1, 0.4))
-                          ,1.2f);
-    //pos =
-    return pos;
+    mat2x3 sphere1, sphere2, pos;
+
+    // //Two boxes
+    //pos = TopBlend(TsdBox(_position, vec3(2.0, 5.0, 1.5), vec4(0.3, 0.6, 0.6, 0.4)),
+    //                      TsdBox(_position, vec3(1.0, 3.0, 0.5), vec4(0.3, 0.36, 0.1, 0.4))
+    //                     ,1.5f); // Weird box
+    // //Two spheres
+    // pos = TopBlend(TsdSphere(_position, 3.0f, vec4(1.f, 1.f, 1.f, 0.0f)),
+    //                    TsdSphere(_position + vec3(1.5f), 1.0, vec4(1.f, 1.f, 1.f, 1.f))
+    //                    ,1.6f);
+    vec3 _pos1 = _position + vec3(-2,0,0);
+    sphere1 = TsdSphere(_pos1, 2.0f, vec4(0.5f,0.5f,0.5f,0.1f));
+    _pos1 = _position + vec3(2,0,0);
+    sphere2 = TsdSphere(_pos1, 2.0f, vec4(0.5f,0.5f,0.5f,0.1f));
+
+    pos = TopUnion(sphere1, sphere2);
+      return pos;
 }
 
 // Old map func
@@ -636,21 +650,35 @@ vec3 render(mat2x3 _ray)
 // --------------------- TRANSPARENCY RENDERING ----------------------------------
 
 // Volume Marching func
-float marchVolume(mat2x3 _ray, TraceResult _tr) // Returns opacity of the pixel
+vec4 marchVolume(mat2x3 _ray, TraceResult _tr) // Returns opacity of the pixel
 {
     mat2x3 tray = _ray;
-    vec4 col = vec4(1.0f);
-    float step = 0.001f;
+    vec3 col = vec3(0.0f);
+    //float step = 0.1f;
+
+    // Adaptive step
+    float step = (_tr.bd - _tr.d) / 256;
+
     float transparency = 0.0f;
     float lastDist = _tr.d; // Trace distance decreases until we out of the object  (only for SDF)
-
-    for (int i = 0; i < 16; ++i) // We take 16 samples at the moment
+    int hits = 0;
+    for (int i = 0; i < 256; ++i) // We take 16 samples at the moment
     {
-        mat2x3 r = Tmap(_ray[0] + step * i * _ray[1]);
-        transparency += r[0].y;
+        mat2x3 r = Tmap(tray[0] + float(i) * step * tray[1]);
+
+        if (r[0].x < 0)
+        {
+            col += r[1].xyz * r[0].y;
+            transparency = 1.0;//r[0].y;
+            ++hits;
+        }
+
          // Break if we outside object
     }
-    return transparency;
+    col /= float(hits);
+    transparency /= float(hits);
+    col = vec3(transparency);
+    return vec4(col, transparency);
 }
 
 TraceResult TcastRay(mat2x3 _ray)
@@ -662,20 +690,57 @@ TraceResult TcastRay(mat2x3 _ray)
   {
     mat2x3 r = Tmap(_ray[0] + trace.t * _ray[1]);
     trace.d = r[0].x;
-    trace.color = r[1].rgb;
-
+    //trace.color = r[1].rgb;
 
     // CalculateOpacity
     if(trace.d <= traceprecision) {
-      trace.o = marchVolume(_ray, trace);
-      break;     
+     break;
     }
     else if(trace.t > tmax) break;
-
-    trace.t += trace.d;
+   trace.t += trace.d;
   }
+    // Backwards Ray
+  mat2x3 bray = mat2x3(_ray[0], _ray[1] * tmax);
+
+  // Tracing backwards
+  for(int i = 0; i < 64; ++i)
+  {
+    mat2x3 r = Tmap(bray[0] - trace.t * bray[1]);
+    trace.bd = r[0].x;
+    //trace.color = r[1].rgb;
+
+    // CalculateOpacity
+    if(trace.d <= traceprecision) {
+      break;
+    }
+    else if(trace.t > tmax) break;
+   trace.bt += trace.bd;
+  }
+
+
+  vec4 data = marchVolume(_ray, trace);
+  trace.color = data.xyz;
+  trace.o = data.w;
+
   return trace; // Opacity returns here
 }
+
+//TraceResult castRay(mat2x3 _ray)
+//{
+//TraceResult trace;
+//trace.t = 1.f;
+//float tmax = 20.f;
+//for(int i = 0; i < 64; ++i)
+//{
+//  vec4 r = map(_ray[0] + trace.t * _ray[1]);
+//  trace.d = r.x;
+//  trace.color = r.yzw;
+//  if(trace.d <= traceprecision || trace.t > tmax) {
+//    break;
+//  }
+//  trace.t += trace.d;
+//}
+
 
 vec3 TcalcNormal(vec3 _position) // Why you so strange normal
 {
@@ -699,11 +764,15 @@ vec3 Trender(mat2x3 _ray)
 
   if(trace.d <= traceprecision) // We are on the object
   {
+
+
     vec3 p = _ray[0] + trace.t * _ray[1]; // !!! SURFACE !!!
     vec3 n = TcalcNormal(p);
     vec3 reflection = reflect(_ray[1], n);
     float intensitySum = 0.f;
-    col = vec3(0.0);
+    // Color
+    col = trace.color;
+    //col = col * trace.o + skyCol * (1.f - trace.o);
 
     for(int i = 0; i < 4; ++i) {
 
@@ -728,7 +797,7 @@ vec3 Trender(mat2x3 _ray)
       col += trace.color * acc * Lights[i].intensity;
 
       // Transparency add
-      //col = col * trace.o + skyCol * (1.f - trace.o);
+
       //col *= col * 0.9f + skyCol * (1.f - 0.9f); // On edit // Works
 
       //col += 0.01f * acc * Lights[i].intensity;
@@ -742,9 +811,10 @@ vec3 Trender(mat2x3 _ray)
     // Vigneting
     vec2 q = o_FragCoord.xy / u_Resolution.xy;
     col *= 0.5 + 0.5*pow( 16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.25 );
-
+    col = trace.color;
     // Opacity -- Blending
   }
+
   return vec3( clamp(col, 0.0, 1.0) );
 }
 
