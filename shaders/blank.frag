@@ -24,14 +24,16 @@ const Light Lights[4] = Light[4](SunLight, fillLightA, fillLightB, fillLightC);
 
 struct TraceResult
 {
-  vec3 color;
-  float t;
-  float bt;
-  float d;
-  float bd;
-  float o;
-};
+  vec3 color; // Color
+  float o; // Transparency at the point
+  float t; //
+  float bt; //
+  float d; // Depth
+  float bd; // Depth backwards
+}; /// 8 floats passed -> good performance
 
+
+#define TRANSPARENCY_SAMPLES 128.0f
 
 /*
  * Signed distance field functions
@@ -51,7 +53,7 @@ vec4 sdSphere(vec3 p, float s, vec3 color)
 }
 
 
-// Box signed exact
+// Box signed exactr
 vec4 sdBox(vec3 p, vec3 b, vec3 color)
 {
   vec3 d = abs(p) - b;
@@ -476,9 +478,9 @@ mat2x3 Tmap(vec3 _position) // mat
     //                    TsdSphere(_position + vec3(1.5f), 1.0, vec4(1.f, 1.f, 1.f, 1.f))
     //                    ,1.6f);
     vec3 _pos1 = _position + vec3(-2,0,0);
-    sphere1 = TsdSphere(_pos1, 2.0f, vec4(0.5f,0.5f,0.5f,0.1f));
+    sphere1 = TsdSphere(_pos1, 2.0f, vec4(1.f,0.5f,0.5f,0.2f));
     _pos1 = _position + vec3(2,0,0);
-    sphere2 = TsdSphere(_pos1, 2.0f, vec4(0.5f,0.5f,0.5f,0.1f));
+    sphere2 = TsdSphere(_pos1, 2.0f, vec4(0.5f,1.f,1.f,0.7f));
 
     pos = TopUnion(sphere1, sphere2);
       return pos;
@@ -649,43 +651,55 @@ vec3 render(mat2x3 _ray)
 
 // --------------------- TRANSPARENCY RENDERING ----------------------------------
 
-// Volume Marching func
+// Volume Marching ans sampling
 vec4 marchVolume(mat2x3 _ray, TraceResult _tr) // Returns opacity of the pixel
 {
     mat2x3 tray = _ray;
     vec3 col = vec3(0.0f);
+    float transparency = 0.0f;
+
+    // Trace distance decreases until we out of the object  (only for SDF)
     //float step = 0.1f;
 
-    // Adaptive step
-    float step = (_tr.bd - _tr.d) / 256;
-
-    float transparency = 0.0f;
-    float lastDist = _tr.d; // Trace distance decreases until we out of the object  (only for SDF)
+    // Adaptive step // Using tmax preprogrammed
+    float step = (20.0f - (_tr.bd - _tr.d)) / TRANSPARENCY_SAMPLES;
+    //float step = 0.1f;
     int hits = 0;
-    for (int i = 0; i < 256; ++i) // We take 16 samples at the moment
+    float lastT = 1.1f;
+
+    // Sampling transparency (wrong now)
+    for (int i = 0; i < TRANSPARENCY_SAMPLES; ++i)
     {
         mat2x3 r = Tmap(tray[0] + float(i) * step * tray[1]);
 
         if (r[0].x < 0)
         {
             col += r[1].xyz * r[0].y;
-            transparency = 1.0;//r[0].y;
+            transparency += 0.10f;//r[0].y;
+            transparency = min(r[0].y, lastT);
+            lastT = r[0].y;
             ++hits;
         }
+        if (transparency / float(i) >= 1.0f) {break;} // We are in non transparent object
 
-         // Break if we outside object
+
+ // Break if we outside object
     }
     col /= float(hits);
     transparency /= float(hits);
     col = vec3(transparency);
+
+    //col = vec3(transparency);
     return vec4(col, transparency);
 }
 
 TraceResult TcastRay(mat2x3 _ray)
 {
-  TraceResult trace; // Tracing, Right? Casting the ray as it is???
+  TraceResult trace; // Forward Tracing
   trace.t = 1.f;
   float tmax = 20.f;
+
+  // Forward raycasting
   for(int i = 0; i < 64; ++i)
   {
     mat2x3 r = Tmap(_ray[0] + trace.t * _ray[1]);
@@ -699,18 +713,21 @@ TraceResult TcastRay(mat2x3 _ray)
     else if(trace.t > tmax) break;
    trace.t += trace.d;
   }
-    // Backwards Ray
-  mat2x3 bray = mat2x3(_ray[0], _ray[1] * tmax);
 
+  // Backwards Raycasting
+  // Revesed ray
+  mat2x3 bray = mat2x3(_ray[0] +  _ray[1] * tmax, // Eye moved to the tmax
+                       - _ray[1]);                // Direction backwards
+  trace.bt = 1.f;
   // Tracing backwards
   for(int i = 0; i < 64; ++i)
   {
-    mat2x3 r = Tmap(bray[0] - trace.t * bray[1]);
+    mat2x3 r = Tmap(bray[0] + trace.bt * bray[1]);
     trace.bd = r[0].x;
     //trace.color = r[1].rgb;
 
     // CalculateOpacity
-    if(trace.d <= traceprecision) {
+    if(trace.bd <= traceprecision) {
       break;
     }
     else if(trace.t > tmax) break;
@@ -724,6 +741,7 @@ TraceResult TcastRay(mat2x3 _ray)
 
   return trace; // Opacity returns here
 }
+
 
 //TraceResult castRay(mat2x3 _ray)
 //{
@@ -764,8 +782,6 @@ vec3 Trender(mat2x3 _ray)
 
   if(trace.d <= traceprecision) // We are on the object
   {
-
-
     vec3 p = _ray[0] + trace.t * _ray[1]; // !!! SURFACE !!!
     vec3 n = TcalcNormal(p);
     vec3 reflection = reflect(_ray[1], n);
@@ -792,13 +808,11 @@ vec3 Trender(mat2x3 _ray)
 
 
       //Testing
-
-
-      col += trace.color * acc * Lights[i].intensity;
+      col += trace.color * acc * Lights[i].intensity; // ??
 
       // Transparency add
 
-      //col *= col * 0.9f + skyCol * (1.f - 0.9f); // On edit // Works
+       // On edit // Works
 
       //col += 0.01f * acc * Lights[i].intensity;
       intensitySum += Lights[i].intensity;
@@ -807,11 +821,14 @@ vec3 Trender(mat2x3 _ray)
     // opacity
     col = applyFog(col, trace.t/150.f);
 
-
     // Vigneting
     vec2 q = o_FragCoord.xy / u_Resolution.xy;
     col *= 0.5 + 0.5*pow( 16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.25 );
+
+
     col = trace.color;
+    //col += col * trace.o + skyCol * (1.f - trace.o);// Testing !
+    //col = vec3(trace.o);
     // Opacity -- Blending
   }
 
