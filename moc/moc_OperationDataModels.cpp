@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'OperationDataModels.hpp'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.9.0)
+** Created by: The Qt Meta Object Compiler version 67 (Qt 5.12.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -12,7 +12,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'OperationDataModels.hpp' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.9.0. It"
+#error "This file was generated using the moc from 5.12.3. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -41,7 +41,7 @@ QT_MOC_LITERAL(0, 0, 14) // "UnionDataModel"
 static const uint qt_meta_data_UnionDataModel[] = {
 
  // content:
-       7,       // revision
+       8,       // revision
        0,       // classname
        0,    0, // classinfo
        0,    0, // methods
@@ -62,10 +62,14 @@ void UnionDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
     Q_UNUSED(_a);
 }
 
-const QMetaObject UnionDataModel::staticMetaObject = {
-    { &NodeDataModel::staticMetaObject, qt_meta_stringdata_UnionDataModel.data,
-      qt_meta_data_UnionDataModel,  qt_static_metacall, nullptr, nullptr}
-};
+QT_INIT_METAOBJECT const QMetaObject UnionDataModel::staticMetaObject = { {
+    &NodeDataModel::staticMetaObject,
+    qt_meta_stringdata_UnionDataModel.data,
+    qt_meta_data_UnionDataModel,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
 
 
 const QMetaObject *UnionDataModel::metaObject() const
@@ -77,7 +81,7 @@ void *UnionDataModel::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_UnionDataModel.stringdata0))
-        return static_cast<void*>(const_cast< UnionDataModel*>(this));
+        return static_cast<void*>(this);
     return NodeDataModel::qt_metacast(_clname);
 }
 
@@ -107,7 +111,7 @@ QT_MOC_LITERAL(0, 0, 22) // "SubtractionOpDataModel"
 static const uint qt_meta_data_SubtractionOpDataModel[] = {
 
  // content:
-       7,       // revision
+       8,       // revision
        0,       // classname
        0,    0, // classinfo
        0,    0, // methods
@@ -128,10 +132,14 @@ void SubtractionOpDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _
     Q_UNUSED(_a);
 }
 
-const QMetaObject SubtractionOpDataModel::staticMetaObject = {
-    { &NodeDataModel::staticMetaObject, qt_meta_stringdata_SubtractionOpDataModel.data,
-      qt_meta_data_SubtractionOpDataModel,  qt_static_metacall, nullptr, nullptr}
-};
+QT_INIT_METAOBJECT const QMetaObject SubtractionOpDataModel::staticMetaObject = { {
+    &NodeDataModel::staticMetaObject,
+    qt_meta_stringdata_SubtractionOpDataModel.data,
+    qt_meta_data_SubtractionOpDataModel,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
 
 
 const QMetaObject *SubtractionOpDataModel::metaObject() const
@@ -143,7 +151,7 @@ void *SubtractionOpDataModel::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_SubtractionOpDataModel.stringdata0))
-        return static_cast<void*>(const_cast< SubtractionOpDataModel*>(this));
+        return static_cast<void*>(this);
     return NodeDataModel::qt_metacast(_clname);
 }
 
@@ -173,7 +181,7 @@ QT_MOC_LITERAL(0, 0, 21) // "IntersectionDataModel"
 static const uint qt_meta_data_IntersectionDataModel[] = {
 
  // content:
-       7,       // revision
+       8,       // revision
        0,       // classname
        0,    0, // classinfo
        0,    0, // methods
@@ -194,10 +202,14 @@ void IntersectionDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c
     Q_UNUSED(_a);
 }
 
-const QMetaObject IntersectionDataModel::staticMetaObject = {
-    { &NodeDataModel::staticMetaObject, qt_meta_stringdata_IntersectionDataModel.data,
-      qt_meta_data_IntersectionDataModel,  qt_static_metacall, nullptr, nullptr}
-};
+QT_INIT_METAOBJECT const QMetaObject IntersectionDataModel::staticMetaObject = { {
+    &NodeDataModel::staticMetaObject,
+    qt_meta_stringdata_IntersectionDataModel.data,
+    qt_meta_data_IntersectionDataModel,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
 
 
 const QMetaObject *IntersectionDataModel::metaObject() const
@@ -209,7 +221,7 @@ void *IntersectionDataModel::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_IntersectionDataModel.stringdata0))
-        return static_cast<void*>(const_cast< IntersectionDataModel*>(this));
+        return static_cast<void*>(this);
     return NodeDataModel::qt_metacast(_clname);
 }
 
@@ -239,7 +251,7 @@ QT_MOC_LITERAL(0, 0, 14) // "BlendDataModel"
 static const uint qt_meta_data_BlendDataModel[] = {
 
  // content:
-       7,       // revision
+       8,       // revision
        0,       // classname
        0,    0, // classinfo
        0,    0, // methods
@@ -260,10 +272,14 @@ void BlendDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
     Q_UNUSED(_a);
 }
 
-const QMetaObject BlendDataModel::staticMetaObject = {
-    { &NodeDataModel::staticMetaObject, qt_meta_stringdata_BlendDataModel.data,
-      qt_meta_data_BlendDataModel,  qt_static_metacall, nullptr, nullptr}
-};
+QT_INIT_METAOBJECT const QMetaObject BlendDataModel::staticMetaObject = { {
+    &NodeDataModel::staticMetaObject,
+    qt_meta_stringdata_BlendDataModel.data,
+    qt_meta_data_BlendDataModel,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
 
 
 const QMetaObject *BlendDataModel::metaObject() const
@@ -275,7 +291,7 @@ void *BlendDataModel::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_BlendDataModel.stringdata0))
-        return static_cast<void*>(const_cast< BlendDataModel*>(this));
+        return static_cast<void*>(this);
     return NodeDataModel::qt_metacast(_clname);
 }
 

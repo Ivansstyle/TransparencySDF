@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
+#include <memory>
 
 /// \file ExpressionEvaluator.hpp
 /// \brief Very simple and buggy set of utility functions to perform expression evaluation (with variables) on the CPU

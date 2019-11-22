@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'Window.hpp'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.9.0)
+** Created by: The Qt Meta Object Compiler version 67 (Qt 5.12.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -12,7 +12,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'Window.hpp' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.9.0. It"
+#error "This file was generated using the moc from 5.12.3. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -47,7 +47,7 @@ QT_MOC_LITERAL(4, 79, 6) // "_nodes"
 static const uint qt_meta_data_hsitho__GLWindow[] = {
 
  // content:
-       7,       // revision
+       8,       // revision
        0,       // classname
        0,    0, // classinfo
        1,   14, // methods
@@ -69,7 +69,7 @@ static const uint qt_meta_data_hsitho__GLWindow[] = {
 void hsitho::GLWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
-        GLWindow *_t = static_cast<GLWindow *>(_o);
+        auto *_t = static_cast<GLWindow *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->nodeChanged((*reinterpret_cast< std::unordered_map<QUuid,std::shared_ptr<Node> >(*)>(_a[1]))); break;
@@ -78,10 +78,14 @@ void hsitho::GLWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int
     }
 }
 
-const QMetaObject hsitho::GLWindow::staticMetaObject = {
-    { &QOpenGLWidget::staticMetaObject, qt_meta_stringdata_hsitho__GLWindow.data,
-      qt_meta_data_hsitho__GLWindow,  qt_static_metacall, nullptr, nullptr}
-};
+QT_INIT_METAOBJECT const QMetaObject hsitho::GLWindow::staticMetaObject = { {
+    &QOpenGLWidget::staticMetaObject,
+    qt_meta_stringdata_hsitho__GLWindow.data,
+    qt_meta_data_hsitho__GLWindow,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
 
 
 const QMetaObject *hsitho::GLWindow::metaObject() const
@@ -93,9 +97,9 @@ void *hsitho::GLWindow::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_hsitho__GLWindow.stringdata0))
-        return static_cast<void*>(const_cast< GLWindow*>(this));
+        return static_cast<void*>(this);
     if (!strcmp(_clname, "QOpenGLFunctions"))
-        return static_cast< QOpenGLFunctions*>(const_cast< GLWindow*>(this));
+        return static_cast< QOpenGLFunctions*>(this);
     return QOpenGLWidget::qt_metacast(_clname);
 }
 

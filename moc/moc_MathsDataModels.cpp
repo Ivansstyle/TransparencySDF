@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'MathsDataModels.hpp'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.9.0)
+** Created by: The Qt Meta Object Compiler version 67 (Qt 5.12.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -12,7 +12,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'MathsDataModels.hpp' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.9.0. It"
+#error "This file was generated using the moc from 5.12.3. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -43,7 +43,7 @@ QT_MOC_LITERAL(2, 26, 0) // ""
 static const uint qt_meta_data_ScalarDataModel[] = {
 
  // content:
-       7,       // revision
+       8,       // revision
        0,       // classname
        0,    0, // classinfo
        1,   14, // methods
@@ -65,7 +65,7 @@ static const uint qt_meta_data_ScalarDataModel[] = {
 void ScalarDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
-        ScalarDataModel *_t = static_cast<ScalarDataModel *>(_o);
+        auto *_t = static_cast<ScalarDataModel *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->valueEdit((*reinterpret_cast< const QString(*)>(_a[1]))); break;
@@ -74,10 +74,14 @@ void ScalarDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int 
     }
 }
 
-const QMetaObject ScalarDataModel::staticMetaObject = {
-    { &NodeDataModel::staticMetaObject, qt_meta_stringdata_ScalarDataModel.data,
-      qt_meta_data_ScalarDataModel,  qt_static_metacall, nullptr, nullptr}
-};
+QT_INIT_METAOBJECT const QMetaObject ScalarDataModel::staticMetaObject = { {
+    &NodeDataModel::staticMetaObject,
+    qt_meta_stringdata_ScalarDataModel.data,
+    qt_meta_data_ScalarDataModel,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
 
 
 const QMetaObject *ScalarDataModel::metaObject() const
@@ -89,7 +93,7 @@ void *ScalarDataModel::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_ScalarDataModel.stringdata0))
-        return static_cast<void*>(const_cast< ScalarDataModel*>(this));
+        return static_cast<void*>(this);
     return NodeDataModel::qt_metacast(_clname);
 }
 
@@ -132,7 +136,7 @@ QT_MOC_LITERAL(2, 26, 0) // ""
 static const uint qt_meta_data_VectorDataModel[] = {
 
  // content:
-       7,       // revision
+       8,       // revision
        0,       // classname
        0,    0, // classinfo
        1,   14, // methods
@@ -154,7 +158,7 @@ static const uint qt_meta_data_VectorDataModel[] = {
 void VectorDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
-        VectorDataModel *_t = static_cast<VectorDataModel *>(_o);
+        auto *_t = static_cast<VectorDataModel *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->valueEdit((*reinterpret_cast< const QString(*)>(_a[1]))); break;
@@ -163,10 +167,14 @@ void VectorDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int 
     }
 }
 
-const QMetaObject VectorDataModel::staticMetaObject = {
-    { &NodeDataModel::staticMetaObject, qt_meta_stringdata_VectorDataModel.data,
-      qt_meta_data_VectorDataModel,  qt_static_metacall, nullptr, nullptr}
-};
+QT_INIT_METAOBJECT const QMetaObject VectorDataModel::staticMetaObject = { {
+    &NodeDataModel::staticMetaObject,
+    qt_meta_stringdata_VectorDataModel.data,
+    qt_meta_data_VectorDataModel,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
 
 
 const QMetaObject *VectorDataModel::metaObject() const
@@ -178,7 +186,7 @@ void *VectorDataModel::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_VectorDataModel.stringdata0))
-        return static_cast<void*>(const_cast< VectorDataModel*>(this));
+        return static_cast<void*>(this);
     return NodeDataModel::qt_metacast(_clname);
 }
 
@@ -221,7 +229,7 @@ QT_MOC_LITERAL(2, 24, 0) // ""
 static const uint qt_meta_data_SineDataModel[] = {
 
  // content:
-       7,       // revision
+       8,       // revision
        0,       // classname
        0,    0, // classinfo
        1,   14, // methods
@@ -243,7 +251,7 @@ static const uint qt_meta_data_SineDataModel[] = {
 void SineDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
-        SineDataModel *_t = static_cast<SineDataModel *>(_o);
+        auto *_t = static_cast<SineDataModel *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->valueEdit((*reinterpret_cast< const QString(*)>(_a[1]))); break;
@@ -252,10 +260,14 @@ void SineDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _i
     }
 }
 
-const QMetaObject SineDataModel::staticMetaObject = {
-    { &NodeDataModel::staticMetaObject, qt_meta_stringdata_SineDataModel.data,
-      qt_meta_data_SineDataModel,  qt_static_metacall, nullptr, nullptr}
-};
+QT_INIT_METAOBJECT const QMetaObject SineDataModel::staticMetaObject = { {
+    &NodeDataModel::staticMetaObject,
+    qt_meta_stringdata_SineDataModel.data,
+    qt_meta_data_SineDataModel,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
 
 
 const QMetaObject *SineDataModel::metaObject() const
@@ -267,7 +279,7 @@ void *SineDataModel::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_SineDataModel.stringdata0))
-        return static_cast<void*>(const_cast< SineDataModel*>(this));
+        return static_cast<void*>(this);
     return NodeDataModel::qt_metacast(_clname);
 }
 
@@ -310,7 +322,7 @@ QT_MOC_LITERAL(2, 26, 0) // ""
 static const uint qt_meta_data_CosineDataModel[] = {
 
  // content:
-       7,       // revision
+       8,       // revision
        0,       // classname
        0,    0, // classinfo
        1,   14, // methods
@@ -332,7 +344,7 @@ static const uint qt_meta_data_CosineDataModel[] = {
 void CosineDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
-        CosineDataModel *_t = static_cast<CosineDataModel *>(_o);
+        auto *_t = static_cast<CosineDataModel *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->valueEdit((*reinterpret_cast< const QString(*)>(_a[1]))); break;
@@ -341,10 +353,14 @@ void CosineDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int 
     }
 }
 
-const QMetaObject CosineDataModel::staticMetaObject = {
-    { &NodeDataModel::staticMetaObject, qt_meta_stringdata_CosineDataModel.data,
-      qt_meta_data_CosineDataModel,  qt_static_metacall, nullptr, nullptr}
-};
+QT_INIT_METAOBJECT const QMetaObject CosineDataModel::staticMetaObject = { {
+    &NodeDataModel::staticMetaObject,
+    qt_meta_stringdata_CosineDataModel.data,
+    qt_meta_data_CosineDataModel,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
 
 
 const QMetaObject *CosineDataModel::metaObject() const
@@ -356,7 +372,7 @@ void *CosineDataModel::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_CosineDataModel.stringdata0))
-        return static_cast<void*>(const_cast< CosineDataModel*>(this));
+        return static_cast<void*>(this);
     return NodeDataModel::qt_metacast(_clname);
 }
 
@@ -399,7 +415,7 @@ QT_MOC_LITERAL(2, 28, 0) // ""
 static const uint qt_meta_data_MultiplyDataModel[] = {
 
  // content:
-       7,       // revision
+       8,       // revision
        0,       // classname
        0,    0, // classinfo
        1,   14, // methods
@@ -421,7 +437,7 @@ static const uint qt_meta_data_MultiplyDataModel[] = {
 void MultiplyDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
-        MultiplyDataModel *_t = static_cast<MultiplyDataModel *>(_o);
+        auto *_t = static_cast<MultiplyDataModel *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->valueEdit((*reinterpret_cast< const QString(*)>(_a[1]))); break;
@@ -430,10 +446,14 @@ void MultiplyDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, in
     }
 }
 
-const QMetaObject MultiplyDataModel::staticMetaObject = {
-    { &NodeDataModel::staticMetaObject, qt_meta_stringdata_MultiplyDataModel.data,
-      qt_meta_data_MultiplyDataModel,  qt_static_metacall, nullptr, nullptr}
-};
+QT_INIT_METAOBJECT const QMetaObject MultiplyDataModel::staticMetaObject = { {
+    &NodeDataModel::staticMetaObject,
+    qt_meta_stringdata_MultiplyDataModel.data,
+    qt_meta_data_MultiplyDataModel,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
 
 
 const QMetaObject *MultiplyDataModel::metaObject() const
@@ -445,7 +465,7 @@ void *MultiplyDataModel::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_MultiplyDataModel.stringdata0))
-        return static_cast<void*>(const_cast< MultiplyDataModel*>(this));
+        return static_cast<void*>(this);
     return NodeDataModel::qt_metacast(_clname);
 }
 
@@ -488,7 +508,7 @@ QT_MOC_LITERAL(2, 26, 0) // ""
 static const uint qt_meta_data_DivideDataModel[] = {
 
  // content:
-       7,       // revision
+       8,       // revision
        0,       // classname
        0,    0, // classinfo
        1,   14, // methods
@@ -510,7 +530,7 @@ static const uint qt_meta_data_DivideDataModel[] = {
 void DivideDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
-        DivideDataModel *_t = static_cast<DivideDataModel *>(_o);
+        auto *_t = static_cast<DivideDataModel *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->valueEdit((*reinterpret_cast< const QString(*)>(_a[1]))); break;
@@ -519,10 +539,14 @@ void DivideDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int 
     }
 }
 
-const QMetaObject DivideDataModel::staticMetaObject = {
-    { &NodeDataModel::staticMetaObject, qt_meta_stringdata_DivideDataModel.data,
-      qt_meta_data_DivideDataModel,  qt_static_metacall, nullptr, nullptr}
-};
+QT_INIT_METAOBJECT const QMetaObject DivideDataModel::staticMetaObject = { {
+    &NodeDataModel::staticMetaObject,
+    qt_meta_stringdata_DivideDataModel.data,
+    qt_meta_data_DivideDataModel,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
 
 
 const QMetaObject *DivideDataModel::metaObject() const
@@ -534,7 +558,7 @@ void *DivideDataModel::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_DivideDataModel.stringdata0))
-        return static_cast<void*>(const_cast< DivideDataModel*>(this));
+        return static_cast<void*>(this);
     return NodeDataModel::qt_metacast(_clname);
 }
 
@@ -577,7 +601,7 @@ QT_MOC_LITERAL(2, 28, 0) // ""
 static const uint qt_meta_data_AdditionDataModel[] = {
 
  // content:
-       7,       // revision
+       8,       // revision
        0,       // classname
        0,    0, // classinfo
        1,   14, // methods
@@ -599,7 +623,7 @@ static const uint qt_meta_data_AdditionDataModel[] = {
 void AdditionDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
-        AdditionDataModel *_t = static_cast<AdditionDataModel *>(_o);
+        auto *_t = static_cast<AdditionDataModel *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->valueEdit((*reinterpret_cast< const QString(*)>(_a[1]))); break;
@@ -608,10 +632,14 @@ void AdditionDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, in
     }
 }
 
-const QMetaObject AdditionDataModel::staticMetaObject = {
-    { &NodeDataModel::staticMetaObject, qt_meta_stringdata_AdditionDataModel.data,
-      qt_meta_data_AdditionDataModel,  qt_static_metacall, nullptr, nullptr}
-};
+QT_INIT_METAOBJECT const QMetaObject AdditionDataModel::staticMetaObject = { {
+    &NodeDataModel::staticMetaObject,
+    qt_meta_stringdata_AdditionDataModel.data,
+    qt_meta_data_AdditionDataModel,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
 
 
 const QMetaObject *AdditionDataModel::metaObject() const
@@ -623,7 +651,7 @@ void *AdditionDataModel::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_AdditionDataModel.stringdata0))
-        return static_cast<void*>(const_cast< AdditionDataModel*>(this));
+        return static_cast<void*>(this);
     return NodeDataModel::qt_metacast(_clname);
 }
 
@@ -666,7 +694,7 @@ QT_MOC_LITERAL(2, 31, 0) // ""
 static const uint qt_meta_data_SubtractionDataModel[] = {
 
  // content:
-       7,       // revision
+       8,       // revision
        0,       // classname
        0,    0, // classinfo
        1,   14, // methods
@@ -688,7 +716,7 @@ static const uint qt_meta_data_SubtractionDataModel[] = {
 void SubtractionDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
-        SubtractionDataModel *_t = static_cast<SubtractionDataModel *>(_o);
+        auto *_t = static_cast<SubtractionDataModel *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->valueEdit((*reinterpret_cast< const QString(*)>(_a[1]))); break;
@@ -697,10 +725,14 @@ void SubtractionDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c,
     }
 }
 
-const QMetaObject SubtractionDataModel::staticMetaObject = {
-    { &NodeDataModel::staticMetaObject, qt_meta_stringdata_SubtractionDataModel.data,
-      qt_meta_data_SubtractionDataModel,  qt_static_metacall, nullptr, nullptr}
-};
+QT_INIT_METAOBJECT const QMetaObject SubtractionDataModel::staticMetaObject = { {
+    &NodeDataModel::staticMetaObject,
+    qt_meta_stringdata_SubtractionDataModel.data,
+    qt_meta_data_SubtractionDataModel,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
 
 
 const QMetaObject *SubtractionDataModel::metaObject() const
@@ -712,7 +744,7 @@ void *SubtractionDataModel::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_SubtractionDataModel.stringdata0))
-        return static_cast<void*>(const_cast< SubtractionDataModel*>(this));
+        return static_cast<void*>(this);
     return NodeDataModel::qt_metacast(_clname);
 }
 

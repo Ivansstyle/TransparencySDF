@@ -30,6 +30,8 @@
 
 #include "nodes/MathsDataModels.hpp"
 
+//using namespace std;
+
 MainWindow::MainWindow(QWidget *_parent) :
   QMainWindow(_parent),
   m_ui(new Ui::MainWindow)
@@ -85,7 +87,7 @@ MainWindow::MainWindow(QWidget *_parent) :
   m_ui->m_nodeEditorLayout->addWidget(m_flowView, 0, 0, 1, 1);
 
 	// Create the static distance field output node
-	auto node = m_nodes->createNode(std::make_unique<DistanceFieldOutputDataModel>(), false, QUuid("ffffffff-ffff-ffff-ffff-ffffffffffff"));
+    auto node = m_nodes->createNode(std::make_unique<DistanceFieldOutputDataModel>(), false, QUuid("ffffffff-ffff-ffff-ffff-ffffffffffff"));
 	QRectF geom = m_flowView->sceneRect();
 
   QPoint pos;

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'TriangularPrismPrimitiveDataModel.hpp'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.9.0)
+** Created by: The Qt Meta Object Compiler version 67 (Qt 5.12.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -12,7 +12,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'TriangularPrismPrimitiveDataModel.hpp' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.9.0. It"
+#error "This file was generated using the moc from 5.12.3. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -41,7 +41,7 @@ QT_MOC_LITERAL(0, 0, 33) // "TriangularPrismPrimitiveDataM..."
 static const uint qt_meta_data_TriangularPrismPrimitiveDataModel[] = {
 
  // content:
-       7,       // revision
+       8,       // revision
        0,       // classname
        0,    0, // classinfo
        0,    0, // methods
@@ -62,10 +62,14 @@ void TriangularPrismPrimitiveDataModel::qt_static_metacall(QObject *_o, QMetaObj
     Q_UNUSED(_a);
 }
 
-const QMetaObject TriangularPrismPrimitiveDataModel::staticMetaObject = {
-    { &NodeDataModel::staticMetaObject, qt_meta_stringdata_TriangularPrismPrimitiveDataModel.data,
-      qt_meta_data_TriangularPrismPrimitiveDataModel,  qt_static_metacall, nullptr, nullptr}
-};
+QT_INIT_METAOBJECT const QMetaObject TriangularPrismPrimitiveDataModel::staticMetaObject = { {
+    &NodeDataModel::staticMetaObject,
+    qt_meta_stringdata_TriangularPrismPrimitiveDataModel.data,
+    qt_meta_data_TriangularPrismPrimitiveDataModel,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
 
 
 const QMetaObject *TriangularPrismPrimitiveDataModel::metaObject() const
@@ -77,7 +81,7 @@ void *TriangularPrismPrimitiveDataModel::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_TriangularPrismPrimitiveDataModel.stringdata0))
-        return static_cast<void*>(const_cast< TriangularPrismPrimitiveDataModel*>(this));
+        return static_cast<void*>(this);
     return NodeDataModel::qt_metacast(_clname);
 }
 

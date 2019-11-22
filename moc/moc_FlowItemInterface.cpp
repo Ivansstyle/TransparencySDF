@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'FlowItemInterface.hpp'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.9.0)
+** Created by: The Qt Meta Object Compiler version 67 (Qt 5.12.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -12,7 +12,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'FlowItemInterface.hpp' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.9.0. It"
+#error "This file was generated using the moc from 5.12.3. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -49,7 +49,7 @@ QT_MOC_LITERAL(6, 72, 11) // "inSignature"
 static const uint qt_meta_data_FlowItemInterface[] = {
 
  // content:
-       7,       // revision
+       8,       // revision
        0,       // classname
        0,    0, // classinfo
        2,   14, // methods
@@ -77,7 +77,7 @@ static const uint qt_meta_data_FlowItemInterface[] = {
 void FlowItemInterface::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
-        FlowItemInterface *_t = static_cast<FlowItemInterface *>(_o);
+        auto *_t = static_cast<FlowItemInterface *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->outputDataChanged((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QVariant(*)>(_a[2]))); break;
@@ -86,10 +86,9 @@ void FlowItemInterface::qt_static_metacall(QObject *_o, QMetaObject::Call _c, in
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);
-        void **func = reinterpret_cast<void **>(_a[1]);
         {
-            typedef void (FlowItemInterface::*_t)(QString , QVariant );
-            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&FlowItemInterface::outputDataChanged)) {
+            using _t = void (FlowItemInterface::*)(QString , QVariant );
+            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&FlowItemInterface::outputDataChanged)) {
                 *result = 0;
                 return;
             }
@@ -97,10 +96,14 @@ void FlowItemInterface::qt_static_metacall(QObject *_o, QMetaObject::Call _c, in
     }
 }
 
-const QMetaObject FlowItemInterface::staticMetaObject = {
-    { &QObject::staticMetaObject, qt_meta_stringdata_FlowItemInterface.data,
-      qt_meta_data_FlowItemInterface,  qt_static_metacall, nullptr, nullptr}
-};
+QT_INIT_METAOBJECT const QMetaObject FlowItemInterface::staticMetaObject = { {
+    &QObject::staticMetaObject,
+    qt_meta_stringdata_FlowItemInterface.data,
+    qt_meta_data_FlowItemInterface,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
 
 
 const QMetaObject *FlowItemInterface::metaObject() const
@@ -112,7 +115,7 @@ void *FlowItemInterface::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_FlowItemInterface.stringdata0))
-        return static_cast<void*>(const_cast< FlowItemInterface*>(this));
+        return static_cast<void*>(this);
     return QObject::qt_metacast(_clname);
 }
 

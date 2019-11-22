@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'Node.hpp'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.9.0)
+** Created by: The Qt Meta Object Compiler version 67 (Qt 5.12.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -12,7 +12,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'Node.hpp' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.9.0. It"
+#error "This file was generated using the moc from 5.12.3. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -51,7 +51,7 @@ QT_MOC_LITERAL(8, 91, 5) // "index"
 static const uint qt_meta_data_Node[] = {
 
  // content:
-       7,       // revision
+       8,       // revision
        0,       // classname
        0,    0, // classinfo
        2,   14, // methods
@@ -75,7 +75,7 @@ static const uint qt_meta_data_Node[] = {
 void Node::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
-        Node *_t = static_cast<Node *>(_o);
+        auto *_t = static_cast<Node *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->propagateData((*reinterpret_cast< std::shared_ptr<NodeData>(*)>(_a[1])),(*reinterpret_cast< PortIndex(*)>(_a[2]))); break;
@@ -85,10 +85,14 @@ void Node::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void *
     }
 }
 
-const QMetaObject Node::staticMetaObject = {
-    { &QObject::staticMetaObject, qt_meta_stringdata_Node.data,
-      qt_meta_data_Node,  qt_static_metacall, nullptr, nullptr}
-};
+QT_INIT_METAOBJECT const QMetaObject Node::staticMetaObject = { {
+    &QObject::staticMetaObject,
+    qt_meta_stringdata_Node.data,
+    qt_meta_data_Node,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
 
 
 const QMetaObject *Node::metaObject() const
@@ -100,9 +104,9 @@ void *Node::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_Node.stringdata0))
-        return static_cast<void*>(const_cast< Node*>(this));
+        return static_cast<void*>(this);
     if (!strcmp(_clname, "Serializable"))
-        return static_cast< Serializable*>(const_cast< Node*>(this));
+        return static_cast< Serializable*>(this);
     return QObject::qt_metacast(_clname);
 }
 

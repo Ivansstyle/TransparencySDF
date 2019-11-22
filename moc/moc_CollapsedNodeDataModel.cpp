@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'CollapsedNodeDataModel.hpp'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.9.0)
+** Created by: The Qt Meta Object Compiler version 67 (Qt 5.12.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -12,7 +12,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'CollapsedNodeDataModel.hpp' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.9.0. It"
+#error "This file was generated using the moc from 5.12.3. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -41,7 +41,7 @@ QT_MOC_LITERAL(0, 0, 22) // "CollapsedNodeDataModel"
 static const uint qt_meta_data_CollapsedNodeDataModel[] = {
 
  // content:
-       7,       // revision
+       8,       // revision
        0,       // classname
        0,    0, // classinfo
        0,    0, // methods
@@ -62,10 +62,14 @@ void CollapsedNodeDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _
     Q_UNUSED(_a);
 }
 
-const QMetaObject CollapsedNodeDataModel::staticMetaObject = {
-    { &NodeDataModel::staticMetaObject, qt_meta_stringdata_CollapsedNodeDataModel.data,
-      qt_meta_data_CollapsedNodeDataModel,  qt_static_metacall, nullptr, nullptr}
-};
+QT_INIT_METAOBJECT const QMetaObject CollapsedNodeDataModel::staticMetaObject = { {
+    &NodeDataModel::staticMetaObject,
+    qt_meta_stringdata_CollapsedNodeDataModel.data,
+    qt_meta_data_CollapsedNodeDataModel,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
 
 
 const QMetaObject *CollapsedNodeDataModel::metaObject() const
@@ -77,7 +81,7 @@ void *CollapsedNodeDataModel::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_CollapsedNodeDataModel.stringdata0))
-        return static_cast<void*>(const_cast< CollapsedNodeDataModel*>(this));
+        return static_cast<void*>(this);
     return NodeDataModel::qt_metacast(_clname);
 }
 
@@ -107,7 +111,7 @@ QT_MOC_LITERAL(0, 0, 15) // "OutputDataModel"
 static const uint qt_meta_data_OutputDataModel[] = {
 
  // content:
-       7,       // revision
+       8,       // revision
        0,       // classname
        0,    0, // classinfo
        0,    0, // methods
@@ -128,10 +132,14 @@ void OutputDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int 
     Q_UNUSED(_a);
 }
 
-const QMetaObject OutputDataModel::staticMetaObject = {
-    { &NodeDataModel::staticMetaObject, qt_meta_stringdata_OutputDataModel.data,
-      qt_meta_data_OutputDataModel,  qt_static_metacall, nullptr, nullptr}
-};
+QT_INIT_METAOBJECT const QMetaObject OutputDataModel::staticMetaObject = { {
+    &NodeDataModel::staticMetaObject,
+    qt_meta_stringdata_OutputDataModel.data,
+    qt_meta_data_OutputDataModel,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
 
 
 const QMetaObject *OutputDataModel::metaObject() const
@@ -143,7 +151,7 @@ void *OutputDataModel::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_OutputDataModel.stringdata0))
-        return static_cast<void*>(const_cast< OutputDataModel*>(this));
+        return static_cast<void*>(this);
     return NodeDataModel::qt_metacast(_clname);
 }
 
@@ -173,7 +181,7 @@ QT_MOC_LITERAL(0, 0, 14) // "InputDataModel"
 static const uint qt_meta_data_InputDataModel[] = {
 
  // content:
-       7,       // revision
+       8,       // revision
        0,       // classname
        0,    0, // classinfo
        0,    0, // methods
@@ -194,10 +202,14 @@ void InputDataModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
     Q_UNUSED(_a);
 }
 
-const QMetaObject InputDataModel::staticMetaObject = {
-    { &NodeDataModel::staticMetaObject, qt_meta_stringdata_InputDataModel.data,
-      qt_meta_data_InputDataModel,  qt_static_metacall, nullptr, nullptr}
-};
+QT_INIT_METAOBJECT const QMetaObject InputDataModel::staticMetaObject = { {
+    &NodeDataModel::staticMetaObject,
+    qt_meta_stringdata_InputDataModel.data,
+    qt_meta_data_InputDataModel,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
 
 
 const QMetaObject *InputDataModel::metaObject() const
@@ -209,7 +221,7 @@ void *InputDataModel::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_InputDataModel.stringdata0))
-        return static_cast<void*>(const_cast< InputDataModel*>(this));
+        return static_cast<void*>(this);
     return NodeDataModel::qt_metacast(_clname);
 }
 

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.9.0
+** Created by: Qt User Interface Compiler version 5.12.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -12,9 +12,7 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QGridLayout>
-#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QToolBar>
@@ -38,28 +36,28 @@ public:
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
-            MainWindow->setObjectName(QStringLiteral("MainWindow"));
+            MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
         MainWindow->resize(1440, 720);
         actionCompile = new QAction(MainWindow);
-        actionCompile->setObjectName(QStringLiteral("actionCompile"));
+        actionCompile->setObjectName(QString::fromUtf8("actionCompile"));
         actionCompile->setCheckable(false);
         centralwidget = new QWidget(MainWindow);
-        centralwidget->setObjectName(QStringLiteral("centralwidget"));
+        centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         SceneWidget = new QWidget(centralwidget);
-        SceneWidget->setObjectName(QStringLiteral("SceneWidget"));
+        SceneWidget->setObjectName(QString::fromUtf8("SceneWidget"));
         SceneWidget->setGeometry(QRect(720, 0, 720, 720));
         m_sceneLayout = new QGridLayout(SceneWidget);
-        m_sceneLayout->setObjectName(QStringLiteral("m_sceneLayout"));
+        m_sceneLayout->setObjectName(QString::fromUtf8("m_sceneLayout"));
         m_sceneLayout->setContentsMargins(0, 0, 0, 0);
         horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         m_sceneLayout->addItem(horizontalSpacer_2, 0, 0, 1, 1);
 
         NodeEditorWidget = new QWidget(centralwidget);
-        NodeEditorWidget->setObjectName(QStringLiteral("NodeEditorWidget"));
+        NodeEditorWidget->setObjectName(QString::fromUtf8("NodeEditorWidget"));
         NodeEditorWidget->setGeometry(QRect(0, 0, 720, 720));
         m_nodeEditorLayout = new QGridLayout(NodeEditorWidget);
-        m_nodeEditorLayout->setObjectName(QStringLiteral("m_nodeEditorLayout"));
+        m_nodeEditorLayout->setObjectName(QString::fromUtf8("m_nodeEditorLayout"));
         m_nodeEditorLayout->setContentsMargins(0, 0, 0, 0);
         horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -67,7 +65,7 @@ public:
 
         MainWindow->setCentralWidget(centralwidget);
         toolBar = new QToolBar(MainWindow);
-        toolBar->setObjectName(QStringLiteral("toolBar"));
+        toolBar->setObjectName(QString::fromUtf8("toolBar"));
         toolBar->setMovable(false);
         MainWindow->addToolBar(Qt::TopToolBarArea, toolBar);
 
@@ -80,12 +78,12 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", Q_NULLPTR));
-        actionCompile->setText(QApplication::translate("MainWindow", "Compile", Q_NULLPTR));
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", nullptr));
+        actionCompile->setText(QApplication::translate("MainWindow", "Compile", nullptr));
 #ifndef QT_NO_TOOLTIP
-        actionCompile->setToolTip(QApplication::translate("MainWindow", "Compile (Shift + B)", Q_NULLPTR));
+        actionCompile->setToolTip(QApplication::translate("MainWindow", "Compile (Shift + B)", nullptr));
 #endif // QT_NO_TOOLTIP
-        toolBar->setWindowTitle(QApplication::translate("MainWindow", "toolBar", Q_NULLPTR));
+        toolBar->setWindowTitle(QApplication::translate("MainWindow", "toolBar", nullptr));
     } // retranslateUi
 
 };
