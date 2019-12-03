@@ -222,6 +222,17 @@ vec3 opRepetition(vec3 p, vec3 c)
   * Now using prefix T to not confuse with any other functions
   */
 // ---------------------------------- TRANSPARENCY MOD BEGIN --------------------------------
+
+
+/*
+*   Mat2x3 functions returns:
+*   
+*   add final ray lenght 
+*
+*
+*
+*/
+
 // Sphere // EDITED
 mat2x3 TsdSphere(vec3 p, float s, vec4 color) // color as vec4
 {
