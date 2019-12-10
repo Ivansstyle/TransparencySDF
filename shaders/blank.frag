@@ -216,7 +216,7 @@ vec3 opRepetition(vec3 p, vec3 c)
 // --------------------- OLD IMPLEMENTATION END -----------------------------
 
 /**
-  * Modified by Ivans Saponenko (2017)
+  * Modified by Ivans Saponenko (2017-2019)
   * return type changed to support more data including transparency and one reserved still not used float
   * structure of return (mat2x3) is {[distance, transparency, reserved][red, green, blue]}
   * Also input color now supports transparency so changed to vec4 (RGBA)
