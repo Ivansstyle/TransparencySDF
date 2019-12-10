@@ -30,6 +30,7 @@ struct TraceResult
   float bt; //
   float d; // Depth
   float bd; // Depth backwards
+  // Parameters of the ray 
 }; /// 8 floats passed -> good performance
 
 
@@ -665,7 +666,9 @@ vec3 render(mat2x3 _ray)
 // Volume Marching ans sampling
 vec4 marchVolume(mat2x3 _ray, TraceResult _tr) // Returns opacity of the pixel
 {
+  
     mat2x3 tray = _ray;
+
     vec3 col = vec3(0.0f);
     float transparency = 0.0f;
 
@@ -746,10 +749,18 @@ TraceResult TcastRay(mat2x3 _ray)
   }
 
 
-  vec4 data = marchVolume(_ray, trace);
-  trace.color = data.xyz;
-  trace.o = data.w;
-
+//  vec4 data = marchVolume(_ray, trace);
+//  trace.color = data.xyz;
+//  trace.o = data.w;
+if (abs(trace.t -trace.bt) < 1e-3) 
+{
+  trace.color = vec3(1.0f, 0.0f,0.0f);
+}
+else{
+  float c = abs(trace.bt-trace.t)/30.0f;
+  c = 1.0f-clamp(c, 0.0f, 1.0f);
+  trace.color = vec3(c);
+}
   return trace; // Opacity returns here
 }
 
