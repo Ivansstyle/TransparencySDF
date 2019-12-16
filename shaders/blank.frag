@@ -26,8 +26,8 @@ struct TraceResult
 {
   vec3 color; // Color
   float o; // Transparency at the point
-  float t; //
-  float bt; //
+  float t; //Step
+  float bt; //Backwards step
   float d; // Depth
   float bd; // Depth backwards
   // Parameters of the ray 
@@ -218,7 +218,10 @@ vec3 opRepetition(vec3 p, vec3 c)
 /**
   * Modified by Ivans Saponenko (2017-2019)
   * return type changed to support more data including transparency and one reserved still not used float
-  * structure of return (mat2x3) is {[distance, transparency, reserved][red, green, blue]}
+  * structure of return (mat2x3) is:
+  * { |distance,    | red,  |
+  *   |transparency,| green,|
+  *   |reserved,    | blue  |}; 
   * Also input color now supports transparency so changed to vec4 (RGBA)
   * Now using prefix T to not confuse with any other functions
   */
@@ -662,55 +665,74 @@ vec3 render(mat2x3 _ray)
 }
 
 // --------------------- TRANSPARENCY RENDERING ----------------------------------
+  
+// if (abs(trace.t -trace.bt) < 1e-3) 
+// {
+//   trace.color = vec3(1.0f, 0.0f,0.0f);
+// }
+// else{
+//   float c = abs(trace.bt-trace.t)/30.0f;
+//   //c = 1.0f-clamp(c, 0.0f, 1.0f);
+//   trace.color = vec3(c);
+// }
 
 // Volume Marching ans sampling
 vec4 marchVolume(mat2x3 _ray, TraceResult _tr) // Returns opacity of the pixel
 {
-  
-    mat2x3 tray = _ray;
+
+    // Setting a ray for the forward volume marching
+    mat2x3 f_ray = _ray;
+    vec3 f_hitpoint = _ray[0] * _tr.d; 
+
+    // Setting up a backward ray and hitpoint
+    float tmax = 20.f;
+    mat2x3 b_ray = mat2x3(_ray[0] +  _ray[1] * tmax, 
+                         -_ray[1]);
+    vec3 b_hitpoint = _ray[0] * _tr.bd; 
 
     vec3 col = vec3(0.0f);
-    float transparency = 0.0f;
+    float s_transparency = 0.0f;
 
-    // Trace distance decreases until we out of the object  (only for SDF)
-    //float step = 0.1f;
+    // The size of ray permetrating the object 
+    float marchsize = _tr.bd - _tr.d;  
 
-    // Adaptive step // Using tmax preprogrammed
-    float step = (20.0f - (_tr.bd - _tr.d)) / TRANSPARENCY_SAMPLES;
-    //float step = 0.1f;
-    int hits = 0;
-    float lastT = 1.1f;
+    int samples = 64; // Amount of transparency samples
 
-    // Sampling transparency (wrong now)
-    for (int i = 0; i < TRANSPARENCY_SAMPLES; ++i)
-    {
-        mat2x3 r = Tmap(tray[0] + float(i) * step * tray[1]);
+    // How big are the samples
+    float samplestep = marchsize / (float)samples;  
 
-        if (r[0].x < 0)
-        {
-            col += r[1].xyz * r[0].y;
-            transparency += 0.10f;//r[0].y;
-            transparency = min(r[0].y, lastT);
-            lastT = r[0].y;
-            ++hits;
-        }
-        if (transparency / float(i) >= 1.0f) {break;} // We are in non transparent object
+    vec3 sum=vec3(0.0f);
+    float avg_transparency=0.0f; 
+    
+    //int discarded_samples = 16; // Normalize
+    for(int i = 0; i < samples; ++i)
+    { 
+      vec3 startpoint = f_ray[0] + _tr.d * f_ray[1]; 
+      vec3 samplepoint = startpoint + f_ray[1] * i; 
+      
+      mat2x3 s = Tmap(samplepoint);
+      
+      vec3 s_col = s[1]; 
+      float s_transparency = s[0].y;
 
-
- // Break if we outside object
+      sum+= s_col * s_transparency;
+      avg_transparency += s_transparency; 
     }
-    col /= float(hits);
-    transparency /= float(hits);
-    col = vec3(transparency);
+    
+    vec3 color = normalize(sum/vec3(avg_transparency)); 
+    float transparency = avg_transparency/(float)samples; 
 
-    //col = vec3(transparency);
-    return vec4(col, transparency);
+    vec4 result = vec4(color, transparency);
+    //Calculating final pixel value 
+
+      return result;
 }
 
 TraceResult TcastRay(mat2x3 _ray)
 {
   TraceResult trace; // Forward Tracing
-  trace.t = 1.f;
+  trace.t =   1.f;
+  trace.bt = -1.f;
   float tmax = 20.f;
 
   // Forward raycasting
@@ -732,26 +754,22 @@ TraceResult TcastRay(mat2x3 _ray)
   // Revesed ray
   mat2x3 bray = mat2x3(_ray[0] +  _ray[1] * tmax, // Eye moved to the tmax
                        - _ray[1]);                // Direction backwards
-  trace.bt = 1.f;
+  //trace.bt = 1.f;
   // Tracing backwards
-  for(int i = 0; i < 64; ++i)
+  for(int i = 0; i < 64; ++i) // We use 64 samples at this point 
   {
-    mat2x3 r = Tmap(bray[0] + trace.bt * bray[1]);
+    mat2x3 r = Tmap(bray[0] + trace.bt * bray[1]); // create a ray from backwards ray to 
     trace.bd = r[0].x;
     //trace.color = r[1].rgb;
 
-    // CalculateOpacity
     if(trace.bd <= traceprecision) {
       break;
     }
     else if(trace.t > tmax) break;
-   trace.bt += trace.bd;
+   trace.bt += trace.bd; // Backtrace marker make a step 
   }
 
-
-//  vec4 data = marchVolume(_ray, trace);
-//  trace.color = data.xyz;
-//  trace.o = data.w;
+// For trace check purposes 
 if (abs(trace.t -trace.bt) < 1e-3) 
 {
   trace.color = vec3(1.0f, 0.0f,0.0f);
@@ -761,25 +779,15 @@ else{
   c = 1.0f-clamp(c, 0.0f, 1.0f);
   trace.color = vec3(c);
 }
+
+ // Sampling inside the object
+  vec4 data = marchVolume(_ray, trace);
+  trace.color = data.xyz;
+  trace.o = data.w;
+
+
   return trace; // Opacity returns here
 }
-
-
-//TraceResult castRay(mat2x3 _ray)
-//{
-//TraceResult trace;
-//trace.t = 1.f;
-//float tmax = 20.f;
-//for(int i = 0; i < 64; ++i)
-//{
-//  vec4 r = map(_ray[0] + trace.t * _ray[1]);
-//  trace.d = r.x;
-//  trace.color = r.yzw;
-//  if(trace.d <= traceprecision || trace.t > tmax) {
-//    break;
-//  }
-//  trace.t += trace.d;
-//}
 
 
 vec3 TcalcNormal(vec3 _position) // Why you so strange normal
@@ -873,3 +881,56 @@ void main()
   o_FragColor = vec4(pow(color, vec3(0.4545)), 1.f);
   //o_FragColor = vec4(color, 1.f);
 }
+
+
+/* TRASHBIN
+
+
+//TraceResult castRay(mat2x3 _ray)
+//{
+//TraceResult trace;
+//trace.t = 1.f;
+//float tmax = 20.f;
+//for(int i = 0; i < 64; ++i)
+//{
+//  vec4 r = map(_ray[0] + trace.t * _ray[1]);
+//  trace.d = r.x;
+//  trace.color = r.yzw;
+//  if(trace.d <= traceprecision || trace.t > tmax) {
+//    break;
+//  }
+//  trace.t += trace.d;
+//}
+
+
+    // // Adaptive step // Using tmax preprogrammed
+    // float step = (20.0f - (_tr.bd - _tr.d)) / TRANSPARENCY_SAMPLES;
+    // //float step = 0.1f;
+    // int hits = 0;
+    // float lastT = 1.1f;
+
+    // // Sampling transparency (wrong now)
+    // for (int i = 0; i < TRANSPARENCY_SAMPLES; ++i)
+    // {
+    //     mat2x3 r = Tmap(tray[0] + float(i) * step * tray[1]);
+
+    //     if (r[0].x < 0)
+    //     {
+    //         col += r[1].xyz * r[0].y;
+    //         transparency += 0.10f;//r[0].y;
+    //         transparency = min(r[0].y, lastT);
+    //         lastT = r[0].y;
+    //         ++hits;
+    //     }
+    //     if (transparency / float(i) >= 1.0f) {break;} // We are in non transparent object
+
+//  // Break if we outside object
+//     }
+//     col /= float(hits);
+//     transparency /= float(hits);
+//     col = vec3(transparency);
+
+//     //col = vec3(transparency);
+
+
+*/
