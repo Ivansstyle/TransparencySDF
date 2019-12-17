@@ -493,9 +493,9 @@ mat2x3 Tmap(vec3 _position) // mat
     //                    TsdSphere(_position + vec3(1.5f), 1.0, vec4(1.f, 1.f, 1.f, 1.f))
     //                    ,1.6f);
     vec3 _pos1 = _position + vec3(-2,0,0);
-    sphere1 = TsdSphere(_pos1, 2.0f, vec4(1.f,0.5f,0.5f,0.2f));
+    sphere1 = TsdSphere(_pos1, 2.0f, vec4(0.0f,0.0f,1.0f,1.0f));
     _pos1 = _position + vec3(2,0,0);
-    sphere2 = TsdSphere(_pos1, 2.0f, vec4(0.5f,1.f,1.f,0.7f));
+    sphere2 = TsdSphere(_pos1, 2.0f, vec4(1.0f,0.0f,0.0f,1.0f));
 
     pos = TopUnion(sphere1, sphere2);
       return pos;
@@ -530,13 +530,13 @@ mat2x3 createRay(vec3 _origin, vec3 _lookAt, vec3 _upV, vec2 _uv, float _fov, fl
   return ray;
 }
 
-
+// Sphere tracing the rays with sphrere tracing algorithm 
 TraceResult castRay(mat2x3 _ray)
 {
-  TraceResult trace; // Tracing, Right? Casting the ray as it is???
+  TraceResult trace;
   trace.t = 1.f;
   float tmax = 20.f;
-  for(int i = 0; i < 64; ++i)
+  for(int i = 0; i < 64; ++i) // 64 - max iterations 
   {
     vec4 r = map(_ray[0] + trace.t * _ray[1]);
     trace.d = r.x;
@@ -679,24 +679,26 @@ vec3 render(mat2x3 _ray)
 // Volume Marching ans sampling
 vec4 marchVolume(mat2x3 _ray, TraceResult _tr) // Returns opacity of the pixel
 {
+    int samples = 64; // Amount of transparency samples
+    float tmax = 20.f; // MAX RAY DISTANCE
 
     // Setting a ray for the forward volume marching
     mat2x3 f_ray = _ray;
-    vec3 f_hitpoint = _ray[0] * _tr.d; 
+    vec3 f_hitpoint = _ray[0] + _tr.d * _ray[1]; 
 
-    // Setting up a backward ray and hitpoint
-    float tmax = 20.f;
-    mat2x3 b_ray = mat2x3(_ray[0] +  _ray[1] * tmax, 
-                         -_ray[1]);
-    vec3 b_hitpoint = _ray[0] * _tr.bd; 
+   
+    // Revesed ray
+    vec3 bEye = _ray[0] +  _ray[1] * tmax; 
+    vec3 bDir = normalize(-_ray[1]); 
+    mat2x3 b_ray = mat2x3(bEye, bDir); // Eye moved to the tmax                                       
+    vec3 b_hitpoint = b_ray[0] + _tr.bd * b_ray[1]; 
 
-    vec3 col = vec3(0.0f);
+    vec3 col = vec3(0.0f); // 
     float s_transparency = 0.0f;
 
     // The size of ray permetrating the object 
     float marchsize = _tr.bd - _tr.d;  
 
-    int samples = 64; // Amount of transparency samples
 
     // How big are the samples
     float samplestep = marchsize / (float)samples;  
@@ -704,39 +706,73 @@ vec4 marchVolume(mat2x3 _ray, TraceResult _tr) // Returns opacity of the pixel
     vec3 sum=vec3(0.0f);
     float avg_transparency=0.0f; 
     
-    //int discarded_samples = 16; // Normalize
-    for(int i = 0; i < samples; ++i)
+    int miss = 0; // Normalize
+    
+    for(int i = 0; i < samples; ++i) // Volume march
     { 
+      // There is a problem with the ray direction 
       vec3 startpoint = f_ray[0] + _tr.d * f_ray[1]; 
       vec3 samplepoint = startpoint + f_ray[1] * i; 
       
+      // Color sample
+      vec3 s_col=vec3(0.0f);
+
+      // Transparency sample
+      float s_transparency = 0.0f; 
+
+      // Sample 
       mat2x3 s = Tmap(samplepoint);
       
-      vec3 s_col = s[1]; 
-      float s_transparency = s[0].y;
+      if(s[0].x<0.0f){
+        // Outside 
+        
+        s_col = s[1]; 
+        s_transparency=0.0f;
 
-      sum+= s_col * s_transparency;
+      }else{ // Inside
+        
+        s_transparency = s[0].y;
+        ++miss; 
+
+      }
+      
+
+      sum+=s_col;// * s_transparency;
       avg_transparency += s_transparency; 
     }
     
+    // Calculate pixel color | something is really wrong 
     vec3 color = normalize(sum/vec3(avg_transparency)); 
     float transparency = avg_transparency/(float)samples; 
 
-    vec4 result = vec4(color, transparency);
+    // Polishing up and packing
+    vec4 result; 
+    
     //Calculating final pixel value 
+    result = vec4(color, transparency);
 
+    //Testing Misses alone
+    float contrast = 1.8f; 
+    result = vec4(color, clamp(((float)miss/(float)samples)*contrast,0.0f,1.0f)); // Use trace.o in rendering
+    
+    //Testing color alone 
+    result = vec4(color, 1.0f);
+
+    //Testing transparency alone 
       return result;
 }
+
 
 TraceResult TcastRay(mat2x3 _ray)
 {
   TraceResult trace; // Forward Tracing
   trace.t =   1.f;
-  trace.bt = -1.f;
+  trace.bt =  1.f;
   float tmax = 20.f;
+  int numSamples = 64; 
 
-  // Forward raycasting
-  for(int i = 0; i < 64; ++i)
+  // Forward raycasting <--------------0
+  for(int i = 0; i < numSamples; ++i)
   {
     mat2x3 r = Tmap(_ray[0] + trace.t * _ray[1]);
     trace.d = r[0].x;
@@ -744,19 +780,21 @@ TraceResult TcastRay(mat2x3 _ray)
 
     // CalculateOpacity
     if(trace.d <= traceprecision) {
-     break;
+     break; // Hit
     }
     else if(trace.t > tmax) break;
-   trace.t += trace.d;
+   trace.t += trace.d; // Add
   }
 
-  // Backwards Raycasting
+  // Backwards Raycasting 0------------> 
+  
   // Revesed ray
-  mat2x3 bray = mat2x3(_ray[0] +  _ray[1] * tmax, // Eye moved to the tmax
-                       - _ray[1]);                // Direction backwards
-  //trace.bt = 1.f;
+  vec3 bEye = _ray[0] +  _ray[1] * tmax; 
+  vec3 bDir = normalize(-_ray[1]); 
+  mat2x3 bray = mat2x3(bEye, bDir); // Eye moved to the tmax
+                                       
   // Tracing backwards
-  for(int i = 0; i < 64; ++i) // We use 64 samples at this point 
+  for(int i = 0; i < numSamples; ++i) // We use 64 samples at this point 
   {
     mat2x3 r = Tmap(bray[0] + trace.bt * bray[1]); // create a ray from backwards ray to 
     trace.bd = r[0].x;
@@ -785,9 +823,9 @@ else{
   trace.color = data.xyz;
   trace.o = data.w;
 
-
   return trace; // Opacity returns here
 }
+
 
 
 vec3 TcalcNormal(vec3 _position) // Why you so strange normal
@@ -816,9 +854,10 @@ vec3 Trender(mat2x3 _ray)
     vec3 n = TcalcNormal(p);
     vec3 reflection = reflect(_ray[1], n);
     float intensitySum = 0.f;
-    // Color
-    col = trace.color;
-    //col = col * trace.o + skyCol * (1.f - trace.o);
+    
+    // Color with transparency
+    col = trace.color; 
+    col = col * trace.o + skyCol * (1.f - trace.o);
 
     for(int i = 0; i < 4; ++i) {
 
@@ -837,18 +876,14 @@ vec3 Trender(mat2x3 _ray)
         acc += 2.00 * specular * Lights[i].specular * diffuse;
 
 
-      //Testing
-      col += trace.color * acc * Lights[i].intensity; // ??
+      col += trace.color * acc * Lights[i].intensity; // Apply lights
 
-      // Transparency add
-
-       // On edit // Works
-
+     
       //col += 0.01f * acc * Lights[i].intensity;
       intensitySum += Lights[i].intensity;
     }
     col /= intensitySum;
-    // opacity
+    // opacity ???
     col = applyFog(col, trace.t/150.f);
 
     // Vigneting
@@ -856,10 +891,11 @@ vec3 Trender(mat2x3 _ray)
     col *= 0.5 + 0.5*pow( 16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.25 );
 
 
-    col = trace.color;
-    //col += col * trace.o + skyCol * (1.f - trace.o);// Testing !
+    //col = trace.color;
+    col += col * trace.o + skyCol * (1.f - trace.o);// Testing !
+    
+    // Testing opacity only 
     //col = vec3(trace.o);
-    // Opacity -- Blending
   }
 
   return vec3( clamp(col, 0.0, 1.0) );
