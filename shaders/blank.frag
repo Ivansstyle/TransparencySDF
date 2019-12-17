@@ -493,9 +493,9 @@ mat2x3 Tmap(vec3 _position) // mat
     //                    TsdSphere(_position + vec3(1.5f), 1.0, vec4(1.f, 1.f, 1.f, 1.f))
     //                    ,1.6f);
     vec3 _pos1 = _position + vec3(-2,0,0);
-    sphere1 = TsdSphere(_pos1, 2.0f, vec4(0.0f,0.0f,1.0f,1.0f));
+    sphere1 = TsdSphere(_pos1, 2.0f, vec4(1.0f,1.0f,1.0f,1.0f));
     _pos1 = _position + vec3(2,0,0);
-    sphere2 = TsdSphere(_pos1, 2.0f, vec4(1.0f,0.0f,0.0f,1.0f));
+    sphere2 = TsdSphere(_pos1, 2.0f, vec4(0.7334f,0.0f,0.0f,0.5f));
 
     pos = TopUnion(sphere1, sphere2);
       return pos;
@@ -679,7 +679,7 @@ vec3 render(mat2x3 _ray)
 // Volume Marching ans sampling
 vec4 marchVolume(mat2x3 _ray, TraceResult _tr) // Returns opacity of the pixel
 {
-    int samples = 64; // Amount of transparency samples
+    int samples = 128; // Amount of transparency samples
     float tmax = 20.f; // MAX RAY DISTANCE
 
     // Setting a ray for the forward volume marching
@@ -723,17 +723,18 @@ vec4 marchVolume(mat2x3 _ray, TraceResult _tr) // Returns opacity of the pixel
       // Sample 
       mat2x3 s = Tmap(samplepoint);
       
-      if(s[0].x<0.0f){
-        // Outside 
+      if(s[0].x>0.0f){
+        // Inside 
+        
+        s_col = vec3(0.0f);
+        s_transparency=0.0f;
+        
+
+      }else{ // Outside
         
         s_col = s[1]; 
-        s_transparency=0.0f;
-
-      }else{ // Inside
-        
-        s_transparency = s[0].y;
-        ++miss; 
-
+        s_transparency = s[0].y; 
+        +miss;
       }
       
 
@@ -752,11 +753,11 @@ vec4 marchVolume(mat2x3 _ray, TraceResult _tr) // Returns opacity of the pixel
     result = vec4(color, transparency);
 
     //Testing Misses alone
-    float contrast = 1.8f; 
-    result = vec4(color, clamp(((float)miss/(float)samples)*contrast,0.0f,1.0f)); // Use trace.o in rendering
+    //float contrast = 1.8f; 
+    //result = vec4(color, clamp(((float)miss/(float)samples)*contrast,0.0f,1.0f)); // Use trace.o in rendering
     
     //Testing color alone 
-    result = vec4(color, 1.0f);
+    //result = vec4(color, 1.0f);
 
     //Testing transparency alone 
       return result;
@@ -884,7 +885,7 @@ vec3 Trender(mat2x3 _ray)
     }
     col /= intensitySum;
     // opacity ???
-    col = applyFog(col, trace.t/150.f);
+    //col = applyFog(col, trace.t/150.f);
 
     // Vigneting
     vec2 q = o_FragCoord.xy / u_Resolution.xy;
@@ -892,7 +893,7 @@ vec3 Trender(mat2x3 _ray)
 
 
     //col = trace.color;
-    col += col * trace.o + skyCol * (1.f - trace.o);// Testing !
+    col += col *clamp(trace.o + skyCol * (1.f - trace.o),0.0,1.0);// Testing !
     
     // Testing opacity only 
     //col = vec3(trace.o);
@@ -919,7 +920,7 @@ void main()
 }
 
 
-/* TRASHBIN
+/* ---------------------------- TRASHBIN -----------------------------------
 
 
 //TraceResult castRay(mat2x3 _ray)
