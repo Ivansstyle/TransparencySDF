@@ -494,10 +494,10 @@ mat2x3 Tmap(vec3 _position) // mat
     //                    ,1.6f);
     vec3 _pos1 = _position + vec3(-2,0,0);
     sphere1 = TsdSphere(_pos1, 2.0f, vec4(1.0f,1.0f,1.0f,1.0f));
-    _pos1 = _position + vec3(2,0,0);
+    _pos1 = _position + vec3(1,0,0);
     sphere2 = TsdSphere(_pos1, 2.0f, vec4(0.7334f,0.0f,0.0f,0.5f));
 
-    pos = TopUnion(sphere1, sphere2);
+    pos = TopIntersection(sphere1, sphere2);
       return pos;
 }
 
@@ -828,7 +828,6 @@ else{
 }
 
 
-
 vec3 TcalcNormal(vec3 _position) // Why you so strange normal
 {
   vec3 offset = vec3(0.0005, -0.0005, 1.0);
@@ -858,7 +857,7 @@ vec3 Trender(mat2x3 _ray)
     
     // Color with transparency
     col = trace.color; 
-    col = col * trace.o + skyCol * (1.f - trace.o);
+    //col = col * trace.o + skyCol * (1.f - trace.o);
 
     for(int i = 0; i < 4; ++i) {
 
