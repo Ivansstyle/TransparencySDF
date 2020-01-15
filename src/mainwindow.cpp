@@ -41,7 +41,7 @@ MainWindow::MainWindow(QWidget *_parent) :
   m_gl = new hsitho::SceneWindow(this);
 
   // Register the nodes
-	DataModelRegistry::registerModel<CubePrimitiveDataModel>("Primitives");
+  DataModelRegistry::registerModel<CubePrimitiveDataModel>("Primitives");
   DataModelRegistry::registerModel<TorusPrimitiveDataModel>("Primitives");
   DataModelRegistry::registerModel<SpherePrimitiveDataModel>("Primitives");
   DataModelRegistry::registerModel<CylinderPrimitiveDataModel>("Primitives");

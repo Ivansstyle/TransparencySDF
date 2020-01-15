@@ -12,7 +12,7 @@ ColorPickerDataModel::ColorPickerDataModel()
     m_h(0),
     m_px(0),
     m_py(0),
-    m_margin(55),
+    m_margin(8),
 		m_vars(false),
 		m_cd(nullptr),
 		m_x(new QLineEdit()),
@@ -20,7 +20,7 @@ ColorPickerDataModel::ColorPickerDataModel()
         m_z(new QLineEdit()),
         m_o(new QLineEdit())
 {
-  m_w = m_x->sizeHint().width()/2;
+  m_w = m_x->sizeHint().width()/3;// Field width
   m_h = m_x->sizeHint().height();
 
   auto d = new QDoubleValidator;
@@ -58,6 +58,7 @@ ColorPickerDataModel::ColorPickerDataModel()
   connect(m_o, &QLineEdit::textChanged, this, &ColorPickerDataModel::colorEdit);
 
   m_o->setText("1.0");
+  m_o->setHidden(false);
 
   _label->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
   QFont f = _label->font();
@@ -73,8 +74,8 @@ ColorPickerDataModel::ColorPickerDataModel()
   m_palColor.setColor(_label->foregroundRole(), Qt::white);
 
   _label->setPalette(m_palColor);
-  _label->setMaximumSize(QSize(m_w*3 + m_margin*2, m_h));
-  _label->setGeometry(0, m_h + m_margin, m_w*3 + m_margin*2, m_h);
+  _label->setMaximumSize(QSize(m_w*4 + m_margin*3, m_h));
+  _label->setGeometry(0, m_h + m_margin, m_w*4 + m_margin*2, m_h);
 }
 
 ColorPickerDataModel::~ColorPickerDataModel()
@@ -133,6 +134,7 @@ void ColorPickerDataModel::setPalColor()
 	m_x->setText(QString::number(current_color.red() / 255.0));
   m_y->setText(QString::number(current_color.green() / 255.0));
   m_z->setText(QString::number(current_color.blue() / 255.0));
+  m_o->setText(QString::number(current_color.black() / 255.0));
 
 //  if(current_color == QColor(255,255,255))
 //  {
@@ -249,7 +251,7 @@ void ColorPickerDataModel::setInData(std::shared_ptr<NodeData> _data, int) // TO
 		m_y->setText(QString(data->vector().m_y.c_str()));
 		m_z->setVisible(false);
 		m_z->setText(QString(data->vector().m_z.c_str()));
-        m_o->setVisible(false);
+        m_o->setVisible(true);
         m_o->setText(QString(data->vector().m_w.c_str()));
 
 		m_x->setGeometry(0, 0, 0, 0);
@@ -272,7 +274,7 @@ void ColorPickerDataModel::setInData(std::shared_ptr<NodeData> _data, int) // TO
     m_z->setVisible(true);
 		m_z->setText("0.0");
     m_o->setVisible(true);
-        m_o->setText("0.0");
+        m_o->setText("1.0");
     _label->setText("Select Color");
 		m_vars = false;
   }
@@ -285,7 +287,7 @@ std::shared_ptr<NodeData> ColorPickerDataModel::outData(PortIndex)
 
 std::vector<QWidget *> ColorPickerDataModel::embeddedWidget()
 {
-  return std::vector<QWidget *>{m_x, m_y, m_z, _label};
+  return std::vector<QWidget *>{m_x, m_y, m_z, m_o, _label};
 }
 
 void ColorPickerDataModel::updateWidgets()
