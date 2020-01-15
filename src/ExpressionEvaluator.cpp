@@ -2,7 +2,7 @@
 #include "ExpressionEvaluator.hpp"
 
 /*
- * Please do not look at these!
+ * Please do not look at these!  Oh man that made me bleed for 2 years _IS
  */
 namespace hsitho {
   namespace Expressions {

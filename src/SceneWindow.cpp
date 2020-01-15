@@ -176,7 +176,7 @@ namespace hsitho
         }
       }
 
-      if(shadercode != "")
+      if(shadercode != "") // _IS TODO -> Change the shader shit
       {
 				std::string fragmentShader = m_shaderStart;
 
