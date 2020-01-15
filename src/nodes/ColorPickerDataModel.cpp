@@ -5,18 +5,20 @@
 #include "ColorPickerDataModel.hpp"
 #include "ExpressionEvaluator.hpp"
 
+// Added opacity _IS
 ColorPickerDataModel::ColorPickerDataModel()
   : _label(new QLabel("Select Color")),
     m_w(0),
     m_h(0),
     m_px(0),
     m_py(0),
-    m_margin(12),
+    m_margin(55),
 		m_vars(false),
 		m_cd(nullptr),
 		m_x(new QLineEdit()),
 		m_y(new QLineEdit()),
-		m_z(new QLineEdit())
+        m_z(new QLineEdit()),
+        m_o(new QLineEdit())
 {
   m_w = m_x->sizeHint().width()/2;
   m_h = m_x->sizeHint().height();
@@ -47,6 +49,15 @@ ColorPickerDataModel::ColorPickerDataModel()
   connect(m_z, &QLineEdit::textChanged, this, &ColorPickerDataModel::colorEdit);
 
   m_z->setText("0.0");
+
+  d = new QDoubleValidator;
+  d->setLocale(QLocale("en_GB"));
+  m_o->setValidator(d);
+  m_o->setMaximumSize(m_o->sizeHint());
+  m_o->setGeometry((m_w + m_margin)*3, 0, m_w, m_h);
+  connect(m_o, &QLineEdit::textChanged, this, &ColorPickerDataModel::colorEdit);
+
+  m_o->setText("1.0");
 
   _label->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
   QFont f = _label->font();
@@ -99,12 +110,19 @@ void ColorPickerDataModel::colorEdit(QString const &string)
 		if(!ok) {
 			emit dataInvalidated(0);
 			return;
-		}
+        } // _IS
+        m_o->text().toFloat(&ok);
+        if(!ok) {
+            emit dataInvalidated(0);
+            return;
+        }
 	}
 
+    // How to change ColorData?
   m_cd = std::make_shared<ColorData>(m_x->text().toStdString(),
                                      m_y->text().toStdString(),
-                                     m_z->text().toStdString());
+                                     m_z->text().toStdString(),
+                                     m_o->text().toStdString());
   emit dataUpdated(0);
 }
 
@@ -133,7 +151,8 @@ void ColorPickerDataModel::save(Properties &p) const
 	p.put("model_name", name());
 	p.put("m_x", m_x->text());
 	p.put("m_y", m_y->text());
-	p.put("m_z", m_z->text());
+    p.put("m_z", m_z->text()); //
+    p.put("m_o", m_o->text()); // _IS (plese work)
 }
 
 void ColorPickerDataModel::restore(const Properties &p)
@@ -141,17 +160,21 @@ void ColorPickerDataModel::restore(const Properties &p)
 	m_x->setText(p.values().find("m_x").value().toString());
 	m_y->setText(p.values().find("m_y").value().toString());
 	m_z->setText(p.values().find("m_z").value().toString());
+    m_o->setText(p.values().find("m_o").value().toString());
 
+    // TODO: Add RGBA
 	int r = hsitho::Expressions::clamp<int>((int)(boost::lexical_cast<float>(m_x->text().toStdString()) * 255), 0, 255);
 	int g = hsitho::Expressions::clamp<int>((int)(boost::lexical_cast<float>(m_y->text().toStdString()) * 255), 0, 255);
 	int b = hsitho::Expressions::clamp<int>((int)(boost::lexical_cast<float>(m_z->text().toStdString()) * 255), 0, 255);
-	current_color = QColor(r, g, b);
+    int a = hsitho::Expressions::clamp<int>((int)(boost::lexical_cast<float>(m_o->text().toStdString()) * 255), 0, 255);
+    current_color = QColor(r, g, b, a); // Qcolor - change to rgbF
 	setPalColor();
 	m_vars = false;
 
-	m_cd = std::make_shared<ColorData>(m_x->text().toStdString(),
-																		 m_y->text().toStdString(),
-																		 m_z->text().toStdString());
+    m_cd = std::make_shared<ColorData>( m_x->text().toStdString(),
+                                        m_y->text().toStdString(),
+                                        m_z->text().toStdString(),
+                                        m_o->text().toStdString());
 }
 
 unsigned int ColorPickerDataModel::nPorts(PortType portType) const
@@ -200,7 +223,7 @@ NodeDataType ColorPickerDataModel::dataType(PortType portType, PortIndex) const
   }
 }
 
-void ColorPickerDataModel::setInData(std::shared_ptr<NodeData> _data, int)
+void ColorPickerDataModel::setInData(std::shared_ptr<NodeData> _data, int) // TODO: Change for opacity _IS
 {
   auto data = std::dynamic_pointer_cast<VectorData>(_data);
 	if(data) {
@@ -210,11 +233,12 @@ void ColorPickerDataModel::setInData(std::shared_ptr<NodeData> _data, int)
       int r = hsitho::Expressions::clamp<int>((int)(boost::lexical_cast<float>(vec.m_x) * 255), 0, 255);
       int g = hsitho::Expressions::clamp<int>((int)(boost::lexical_cast<float>(vec.m_y) * 255), 0, 255);
       int b = hsitho::Expressions::clamp<int>((int)(boost::lexical_cast<float>(vec.m_z) * 255), 0, 255);
-      current_color = QColor(r, g, b);
+      int a = hsitho::Expressions::clamp<int>((int)(boost::lexical_cast<float>(vec.m_w) * 255), 0, 255);
+      current_color = QColor(r, g, b, a);
       setPalColor();
 			m_vars = false;
     } catch(boost::exception &) {
-      current_color = QColor(0, 0, 0);
+      current_color = QColor(0, 0, 0, 0);
       m_palColor.setColor(_label->backgroundRole(), current_color);
 			_label->setPalette(m_palColor);
 			m_vars = true;
@@ -225,16 +249,20 @@ void ColorPickerDataModel::setInData(std::shared_ptr<NodeData> _data, int)
 		m_y->setText(QString(data->vector().m_y.c_str()));
 		m_z->setVisible(false);
 		m_z->setText(QString(data->vector().m_z.c_str()));
+        m_o->setVisible(false);
+        m_o->setText(QString(data->vector().m_w.c_str()));
 
 		m_x->setGeometry(0, 0, 0, 0);
 		m_y->setGeometry(0, 0, 0, 0);
 		m_z->setGeometry(0, 0, 0, 0);
+        m_o->setGeometry(0, 0, 0, 0); //_IS
 		_label->setText("");
 		_label->setGeometry(m_px, m_py, m_w, m_h);
   } else {
     m_x->setGeometry(m_px, m_py, m_w, m_h);
     m_y->setGeometry(m_px + m_w + m_margin, m_py, m_w, m_h);
     m_z->setGeometry(m_px + (m_w + m_margin)*2, m_py, m_w, m_h);
+    m_o->setGeometry(m_px + (m_w + m_margin)*3, m_py, m_w, m_h); //_IS
     _label->setGeometry(m_px, m_py + m_h + m_margin, m_w*3 + m_margin*2, m_h);
 
     m_x->setVisible(true);
@@ -243,6 +271,8 @@ void ColorPickerDataModel::setInData(std::shared_ptr<NodeData> _data, int)
 		m_y->setText("0.0");
     m_z->setVisible(true);
 		m_z->setText("0.0");
+    m_o->setVisible(true);
+        m_o->setText("0.0");
     _label->setText("Select Color");
 		m_vars = false;
   }

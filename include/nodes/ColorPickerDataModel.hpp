@@ -41,7 +41,7 @@ public:
 
   static QString name()
   {
-    return QString("Color Picker");
+    return QString("Color and Transparency Picker");
   }
 
   void setColor() {current_color = m_color.onColor(current_color); }
@@ -51,7 +51,7 @@ public:
   void setCurrentColor(const QColor &color);
 
   void save(Properties &p) const override;
-	void restore(const Properties &p) override;
+  void restore(const Properties &p) override;
   void setInData(std::shared_ptr<NodeData>, int) override;
   void updateWidgets() override;
 
@@ -78,15 +78,17 @@ private:
   QColor label_color;
   unsigned int m_w, m_h, m_px, m_py, m_margin;
 	bool m_vars;
-
+    // V Krolechju NORU _IS
   std::shared_ptr<ColorData> m_cd;
 
+  // Added Opacity _IS
   union {
-    QLineEdit *m_inputs[3];
+    QLineEdit *m_inputs[4];
     struct {
       QLineEdit *m_x;
       QLineEdit *m_y;
       QLineEdit *m_z;
+      QLineEdit *m_o;
     };
   };
 

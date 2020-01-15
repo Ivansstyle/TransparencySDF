@@ -36,11 +36,11 @@ struct Vec4f
     m_z = _rhs.m_z;
     m_w = _rhs.m_w;
   }
-
+        // _IS
 	std::string m_x = "0.0000";
 	std::string m_y = "0.0000";
 	std::string m_z = "0.0000";
-	std::string m_w = "1.0000";
+    std::string m_w = "0.0000";
 };
 
 enum DFNodeType
@@ -297,8 +297,8 @@ class ColorData : public NodeData
 public:
 
   ColorData() : m_cd(Vec4f()) {}
-  ColorData(const std::string &_r, const std::string &_g, const std::string &_b) :
-    m_cd(Vec4f(_r, _g, _b, "1.0")) {}
+  ColorData(const std::string &_r,const std::string &_g,const std::string &_b,const std::string &_a) :
+    m_cd(Vec4f(_r, _g, _b, _a)) {}
 
   NodeDataType type() const override
   {

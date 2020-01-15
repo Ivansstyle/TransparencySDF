@@ -493,11 +493,11 @@ mat2x3 Tmap(vec3 _position) // mat
     //                    TsdSphere(_position + vec3(1.5f), 1.0, vec4(1.f, 1.f, 1.f, 1.f))
     //                    ,1.6f);
     vec3 _pos1 = _position + vec3(-2,0,0);
-    sphere1 = TsdSphere(_pos1, 2.0f, vec4(1.0f,1.0f,1.0f,1.0f));
+    sphere1 = TsdSphere(_pos1, 2.0f, vec4(1.0f,0.0f,0.0f,1.0f));
     _pos1 = _position + vec3(1,0,0);
-    sphere2 = TsdSphere(_pos1, 2.0f, vec4(0.7334f,0.0f,0.0f,0.5f));
+    sphere2 = TsdSphere(_pos1, 2.0f, vec4(0.0f,0.0f,1.0f,1.0f));
 
-    pos = TopIntersection(sphere1, sphere2);
+    pos = TopUnion(sphere1, sphere2);
       return pos;
 }
 
@@ -679,7 +679,7 @@ vec3 render(mat2x3 _ray)
 // Volume Marching ans sampling
 vec4 marchVolume(mat2x3 _ray, TraceResult _tr) // Returns opacity of the pixel
 {
-    int samples = 128; // Amount of transparency samples
+    int samples = 512; // Amount of transparency samples
     float tmax = 20.f; // MAX RAY DISTANCE
 
     // Setting a ray for the forward volume marching
@@ -738,7 +738,7 @@ vec4 marchVolume(mat2x3 _ray, TraceResult _tr) // Returns opacity of the pixel
       }
       
 
-      sum+=s_col;// * s_transparency;
+      sum+=s_col * s_transparency;
       avg_transparency += s_transparency; 
     }
     
@@ -892,10 +892,10 @@ vec3 Trender(mat2x3 _ray)
 
 
     //col = trace.color;
-    col += col *clamp(trace.o + skyCol * (1.f - trace.o),0.0,1.0);// Testing !
+    col = clamp(col*trace.o + skyCol * (1.f - trace.o),0.0,1.0);// Testing !
     
     // Testing opacity only 
-    //col = vec3(trace.o);
+    col = vec3(clamp(trace.o,0.0,1.0));
   }
 
   return vec3( clamp(col, 0.0, 1.0) );
@@ -944,16 +944,16 @@ void main()
     // //float step = 0.1f;
     // int hits = 0;
     // float lastT = 1.1f;
-
-    // // Sampling transparency (wrong now)
-    // for (int i = 0; i < TRANSPARENCY_SAMPLES; ++i)
-    // {
-    //     mat2x3 r = Tmap(tray[0] + float(i) * step * tray[1]);
-
-    //     if (r[0].x < 0)
-    //     {
-    //         col += r[1].xyz * r[0].y;
-    //         transparency += 0.10f;//r[0].y;
+0
+    // // Sampling transparency (wro0ng now)
+    // for (int i = 0; i < TRANSPARE0NCY_SAMPLES; ++i)
+    // {0
+    //     mat2x3 r = Tmap(tray[0] +0 float(i) * step * tray[1]);
+0
+    //     if (r[0].x < 0)0
+    //     {0
+    //         col += r[1].xyz * r[00].y;
+    //         transparency += 0.10f0;//r[0].y;
     //         transparency = min(r[0].y, lastT);
     //         lastT = r[0].y;
     //         ++hits;
