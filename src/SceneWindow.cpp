@@ -151,57 +151,103 @@ namespace hsitho
   }
 
   // WORK _IS
-  void SceneWindow::nodeChanged(std::unordered_map<QUuid, std::shared_ptr<Node>> _nodes)
-  {
-    if(m_outputNode == nullptr)
+
+    void SceneWindow::nodeChanged(std::unordered_map<QUuid, std::shared_ptr<Node>> _nodes)
     {
-      for(auto node : _nodes)
-      {
-        if(node.second.get()->nodeDataModel()->getShaderCode() == "final") // _IS diving to the function
+        if(m_outputNode == nullptr)
         {
-          m_outputNode = node.second.get();
-          break;
+            for(auto node : _nodes)
+            {
+                if(node.second.get()->nodeDataModel()->getShaderCode() == "final")
+                {
+                    m_outputNode = node.second.get();
+                break;
+                }
         }
-      }
-    }
-    if(m_outputNode != nullptr) // _IS !!! Shader compilation
-    {
-        // Create shader containter and remove unknows
+        }
+        if(m_outputNode != nullptr)
+        {
         std::string shadercode;
         Mat4f translation;
-        hsitho::Expressions::flushUnknowns();
-
-
+            hsitho::Expressions::flushUnknowns();
         for(auto connection : m_outputNode->nodeState().connection(PortType::In, 0))
-          {
-            if(connection.get() && connection->getNode(PortType::Out).lock())
-            {
-              shadercode += recurseNodeTree(connection->getNode(PortType::Out).lock(), translation);
-            }
-          }
+        {
+        if(connection.get() && connection->getNode(PortType::Out).lock())
+        {
+          shadercode += recurseNodeTree(connection->getNode(PortType::Out).lock(), translation);
+        }
+        }
 
-          if(shadercode != "") // _IS WIP -> Change the shader
-          {
-                    std::string fragmentShader = m_shaderStart;
+        if(shadercode != "")
+        {
+                std::string fragmentShader = m_shaderStart;
 
-                    fragmentShader += hsitho::Expressions::getUnknowns(); // _IS Get uknowns TODO: check if the proper functions are arranged to the vector
-                    fragmentShader += "pos = ";
-                    fragmentShader += hsitho::Expressions::replaceUnknowns(shadercode);
-                    fragmentShader += ";";
+                fragmentShader += hsitho::Expressions::getUnknowns();
+                fragmentShader += "pos = ";
+                fragmentShader += hsitho::Expressions::replaceUnknowns(shadercode);
+                fragmentShader += ";";
 
-            fragmentShader += m_shaderEnd;
-            std::cout << fragmentShader<< "\n"; // Deconstruct
+        fragmentShader += m_shaderEnd;
 
-            std::ifstream testFragShader("shaders/blank.frag");
-            std::string tfshader = std::string((std::istreambuf_iterator<char>(testFragShader)), std::istreambuf_iterator<char>());
-            m_shaderMan->updateShader(tfshader.c_str());
-
-            //Deconstruct
-            //m_shaderMan->updateShader(fragmentShader.c_str());
-          }
-      //std::cout<<"shadercode from: Node Changed \n"<< shadercode << "\n"; // Deconstruct
+        m_shaderMan->updateShader(fragmentShader.c_str());
+        }
+        }
     }
-  }
+
+  // _IS Testing implementation
+
+//  void SceneWindow::nodeChanged(std::unordered_map<QUuid, std::shared_ptr<Node>> _nodes)
+//  {
+//    if(m_outputNode == nullptr)
+//    {
+//      for(auto node : _nodes)
+//      {
+//        if(node.second.get()->nodeDataModel()->getShaderCode() == "final") // _IS diving to the function
+//        {
+//          m_outputNode = node.second.get();
+//          break;
+//        }
+//      }
+//    }
+//    if(m_outputNode != nullptr) // _IS !!! Shader compilation
+//    {
+//        // Create shader containter and remove unknows
+//        std::string shadercode;
+//        Mat4f translation;
+//        hsitho::Expressions::flushUnknowns();
+
+
+//        for(auto connection : m_outputNode->nodeState().connection(PortType::In, 0))
+//          {
+//            if(connection.get() && connection->getNode(PortType::Out).lock())
+//            {
+//              shadercode += recurseNodeTree(connection->getNode(PortType::Out).lock(), translation);
+//            }
+//          }
+
+//          if(shadercode != "") // _IS WIP -> Change the shader
+//          {
+//                    std::string fragmentShader = m_shaderStart;
+
+//                    fragmentShader += hsitho::Expressions::getUnknowns(); // _IS Get uknowns TODO: check if the proper functions are arranged to the vector
+//                    fragmentShader += "pos = ";
+//                    fragmentShader += hsitho::Expressions::replaceUnknowns(shadercode);
+//                    fragmentShader += ";";
+
+//            fragmentShader += m_shaderEnd;
+//            std::cout << fragmentShader<< "\n"; // Deconstruct
+
+//            std::ifstream testFragShader("shaders/blank.frag");
+//            std::string tfshader = std::string((std::istreambuf_iterator<char>(testFragShader)), std::istreambuf_iterator<char>());
+//            m_shaderMan->updateShader(tfshader.c_str());
+
+//            //Deconstruct
+//            //m_shaderMan->updateShader(fragmentShader.c_str());
+//          }
+//      //std::cout<<"shadercode from: Node Changed \n"<< shadercode << "\n"; // Deconstruct
+//    }
+//  }
+
 
 	std::string SceneWindow::recurseNodeTree(std::shared_ptr<Node> _node, Mat4f _t, PortIndex portIndex, unsigned int _cp)
 	{

@@ -92,11 +92,11 @@ private slots:
 private:
 	std::shared_ptr<VectorData> m_v;
 	union {
-		QLineEdit *m_inputs[3];
+        QLineEdit *m_inputs[3];
 		struct {
 			QLineEdit *m_x;
 			QLineEdit *m_y;
-			QLineEdit *m_z;
+            QLineEdit *m_z;
 		};
 	};
 };

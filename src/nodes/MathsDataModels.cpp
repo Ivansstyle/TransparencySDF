@@ -97,7 +97,7 @@ VectorDataModel::VectorDataModel() :
 	m_v(nullptr),
 	m_x(new QLineEdit()),
 	m_y(new QLineEdit()),
-	m_z(new QLineEdit())
+    m_z(new QLineEdit())
 {
 	int margin = 12;
 	int y = 0, x = 0;
@@ -143,7 +143,7 @@ void VectorDataModel::valueEdit(QString const)
 		y = "0.0";
 	if(m_z->text().isEmpty())
 		z = "0.0";
-	m_v = std::make_shared<VectorData>(x, y, z);
+    m_v = std::make_shared<VectorData>(x, y, z);
 	emit dataUpdated(0);
 }
 

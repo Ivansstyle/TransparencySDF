@@ -270,10 +270,15 @@ private:
 
 class VectorData : public NodeData
 {
-public:
+public: // Add w to vector data
 	VectorData(const std::string &_id = "Vec") : m_v(Vec4f()), m_id(_id) {}
-	VectorData(const std::string &_x, const std::string &_y, const std::string &_z, const std::string &_id = "Vec") :
-		m_v(Vec4f(_x, _y, _z, "1.0")),
+    VectorData(const std::string &_x,
+               const std::string &_y,
+               const std::string &_z,
+               //const std::string &_w,
+               //const std::string &_w, // NEW VAR _IS
+               const std::string &_id = "Vec") :
+        m_v(Vec4f(_x, _y, _z, "0.0" )),
 		m_id(_id)
   {}
 
