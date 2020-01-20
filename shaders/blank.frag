@@ -444,6 +444,7 @@ mat2x3 TopBlend(mat2x3 a, mat2x3 b, float k)
     float h = clamp(0.5+0.5*(b[0].x-a[0].x)/k, 0.0, 1.0);
     float d =  mix(a[0].x, b[0].x, h) - k*h*(1.0-h);
     res[1] = lerp(vec4(a[0].x, a[1].xyz),vec4(b[0].x, b[1].xyz), h); // SHOULD BE VEC4
+  // Lelp transparency like color !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     ///res[0].y = mix(a[0].y, b[0].y, h); // TRANSPARENCY TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     res[0].x = d; // Using mix for now
@@ -921,7 +922,7 @@ void main()
 
 /* ---------------------------- TRASHBIN -----------------------------------
 
-
+  
 //TraceResult castRay(mat2x3 _ray)
 //{
 //TraceResult trace;

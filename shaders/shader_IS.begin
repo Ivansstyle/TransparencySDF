@@ -1,0 +1,459 @@
+#version 410 core
+
+uniform float u_GlobalTime;
+uniform vec2 u_Resolution;
+uniform vec3 u_Camera;
+uniform vec3 u_CameraUp;
+in vec2 o_FragCoord;
+out vec4 o_FragColor;
+
+struct Light {
+  vec3 pos;
+  vec3 diffuse;
+  vec3 ambient;
+  vec3 specular;
+  float intensity;
+};
+
+const float traceprecision = 0.01f;
+const Light SunLight = Light(vec3(2.0f, 2.5f, 2.0f), vec3(1.0, 0.8, 0.55), vec3(1.00, 0.90, 0.70), vec3(0.40,0.60,1.00), 1.0);
+const Light fillLightA = Light(vec3(-2.0f, 5.5f, -1.0f), vec3(0.78, 0.88, 1.0), vec3(1.00, 0.90, 0.70), vec3(0.40,0.60,1.00), 0.5);
+const Light fillLightB = Light(vec3(-1.0f, 5.5f, 2.0f), vec3(1.0, 0.88, 0.78), vec3(1.00, 0.90, 0.70), vec3(0.40,0.60,1.00), 0.5);
+const Light fillLightC = Light(vec3(0.0f, -5.5f, 0.0f), vec3(1.0, 0.88, 0.78), vec3(1.00, 0.90, 0.70), vec3(0.40,0.60,1.00), 1.0);
+const Light Lights[4] = Light[4](SunLight, fillLightA, fillLightB, fillLightC);
+
+struct TraceResult
+{
+  vec3 color; // Color
+  float o; // Transparency at the point
+  float t; //Step
+  float bt; //Backwards step
+  float d; // Depth
+  float bd; // Depth backwards
+  // Parameters of the ray 
+}; /// 8 floats passed -> good performance
+
+
+#define TRANSPARENCY_SAMPLES 128.0f
+
+/*
+ * Signed distance field functions
+ * These function were originally written by Inigo Quilez
+ * Modified by Teemu Lindborg where needed.
+ * [Accessed Decemeber 2016] Available from: http://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+ */
+// --------------------- OLD IMPLEMENTATION DELETED -------------------------------
+// Sphere
+
+// Box signed exactr
+
+// Box fast
+
+// Torus - signed - exact
+
+// Cylinder - signed - exact
+
+//Cone - signed - exact
+vec4 sdCone(vec3 p, vec2 c, vec3 color)
+{
+  // c must be normalized
+  float q = length(p.xy);
+  return vec4(dot(c,vec2(q,p.z)), color);
+}
+
+// Plane - signed - exact
+vec4 sdPlane(vec3 p, vec4 n, vec3 color)
+{
+  // n must be normalized
+  return vec4(dot(p,n.xyz) + n.w, color);
+}
+
+// Hexagonal Prism - signed - exact
+vec4 sdHexPrism(vec3 p, vec2 h, vec3 color)
+{
+  vec3 q = abs(p);
+  return vec4(max(q.z-h.y,max((q.x*0.866025+q.y*0.5),q.y)-h.x), color);
+}
+
+// Triangular Prism - signed - exact
+vec4 sdTriPrism(vec3 p, vec2 h, vec3 color)
+{
+  vec3 q = abs(p);
+  return vec4(max(q.z-h.y,max(q.x*0.866025+p.y*0.5,-p.y)-h.x*0.5), color);
+}
+
+// Capsule / Line - signed - exact
+vec4 sdCapsule(vec3 p, vec3 a, vec3 b, float r, vec3 color)
+{
+  vec3 pa = p - a, ba = b - a;
+  float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
+  return vec4(length( pa - ba*h ) - r, color);
+}
+
+// Capped cylinder - signed - exact
+vec4 sdCappedCylinder(vec3 p, vec2 h, vec3 color)
+{
+  vec2 d = abs(vec2(length(p.xz),p.y)) - h;
+  return vec4(min(max(d.x,d.y),0.0) + length(max(d,0.0)), color);
+}
+
+// Capped Cone - signed - bound
+vec4 sdCappedCone(vec3 p, vec3 c, vec3 color)
+{
+  vec2 q = vec2( length(p.xz), p.y );
+  vec2 v = vec2( c.z*c.y/c.x, -c.z );
+  vec2 w = v - q;
+  vec2 vv = vec2( dot(v,v), v.x*v.x );
+  vec2 qv = vec2( dot(v,w), v.x*w.x );
+  vec2 d = max(qv,0.0)*qv/vv;
+  return vec4(sqrt( dot(w,w) - max(d.x,d.y) ) * sign(max(q.y*v.x-q.x*v.y,w.y)), color);
+}
+
+// Ellipsoid - signed - bound
+vec4 sdEllipsoid(vec3 p, vec3 r, vec3 color)
+{
+  return vec4((length( p/r ) - 1.0) * min(min(r.x,r.y),r.z), color);
+}
+
+/*
+ * Unsigned distance fields
+ */
+// Box unsigned exact
+vec4 udBox(vec3 p, vec3 b, vec3 color)
+{
+  return vec4(length(max(abs(p)-b,0.0)), color);
+}
+
+// Round Box unsigned exact
+
+vec4 udRoundBox(vec3 p, vec3 b, float r, vec3 color)
+{
+  return vec4(length(max(abs(p)-b,0.0))-r, color);
+}
+
+float g(float a, float b)
+{
+  return a + b + sqrt(a*a + b*b);
+}
+
+float w1(float a, float b, float t)
+{
+  return g(b, t-1) / (g(a, -t) + g(b, t-1));
+}
+
+float w2(float a, float b, float t)
+{
+  return g(a, -t) / (g(a, -t) + g(b, t-1));
+}
+
+vec3 lerp(vec4 a, vec4 b, float t)
+{
+//  return t*a.yzw + (1-t)*b.yzw;
+  return w1(a.x, b.x, t)*a.yzw + w2(a.x, b.x, t)*b.yzw;
+}
+
+vec4 opBlend(vec4 a, vec4 b, float k)
+{
+  float h = clamp(0.5+0.5*(b.x-a.x)/k, 0.0, 1.0);
+  float d = mix(b.x, a.x, h) - k*h*(1.0-h);
+  return vec4(d, lerp(a, b, h));
+}
+
+vec4 opUnion(vec4 a, vec4 b)
+{
+  return a.x <= b.x ? a : b;
+}
+
+vec4 opIntersection(vec4 a, vec4 b)
+{
+  return a.x >= b.x ? a : b;
+}
+
+vec4 opSubtraction(vec4 a, vec4 b)
+{
+  return -a.x >= b.x ? vec4(-a.x, a.yzw) : b;
+}
+
+vec3 opRepetition(vec3 p, vec3 c)
+{
+  vec3 q = mod(p,c)-0.5*c;
+  return q;
+}
+
+// --------------------- OLD IMPLEMENTATION END -----------------------------
+
+/**
+  * Modified by Ivans Saponenko (2017-2019)
+  * return type changed to support more data including transparency and one reserved still not used float
+  * structure of return (mat2x3) is:
+  * { |distance,    | red,  |
+  *   |transparency,| green,|
+  *   |reserved,    | blue  |}; 
+  * Also input color now supports transparency so changed to vec4 (RGBA)
+  * Now using prefix T to not confuse with any other functions
+  * Prefix T is deleted for final implementation to use Teemu's Lindborns system of shader evaluation 
+  */
+// ---------------------------------- TRANSPARENCY MOD BEGIN --------------------------------
+
+
+/*
+*   Mat2x3 functions returns:
+*   
+*   add final ray lenght 
+*
+*
+*
+*/
+
+
+// _IS ---> TODO: Check the code to send color as a vec4 instead of vec 4 in the shader evaluation 
+// _IS ---> Make sure transparency is mixed exactly like color of the object !! Hope it works 
+
+
+// Sphere // EDITED
+mat2x3 sdSphere(vec3 p, float s, vec4 color) // color as vec4
+{
+  mat2x3 res;
+  res[0].x = length(p)-s;
+  res[0].y = color.w;
+  res[1] = color.xyz;
+  return res; // returning as {[distance, transparency, reserved][vec3(color)]};
+}
+
+
+// Box signed exact // EDITED
+mat2x3 sdBox(vec3 p, vec3 b, vec4 color) // color as vec4
+{
+    mat2x3 res;
+  vec3 d = abs(p) - b;
+
+  res[0].x = min(max(d.x,max(d.y,d.z)),0.0) + length(max(d,0.0));
+  res[0].y = color.w;
+  res[1] = color.xyz;
+  return res; // returning as {[distance, transparency, reserved][vec3(color)]};
+}
+
+// Box fast // EDITES
+mat2x3 sdFastBox(vec3 _position, float _w, vec4 color)
+{
+  mat2x3 res;
+  res[1] = color.xyz;
+  res[0].y = color.w;
+
+  vec3 pos = abs(_position);
+  float dx = pos.x - _w;
+  float dy = pos.y - _w;
+  float dz = pos.z - _w;
+  res[0].x = max(dx, max(dy, dz));
+
+  return res;
+}
+
+// Torus - signed - exact
+mat2x3 sdTorus(vec3 p, vec2 t, vec4 color)
+{
+  mat2x3 res;
+  res[1] = color.xyz;
+  res[0].y = color.w;
+
+  vec2 q = vec2(length(p.xz)-t.x,p.y);
+
+  res[0].x = length(q)-t.y;
+  return res;
+}
+
+// Cylinder - signed - exact
+mat2x3 sdCylinder(vec3 p, vec3 c, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+    res[0].x = length(p.xz-c.xy)-c.z;
+    return res;
+}
+
+
+//Cone - signed - exact
+mat2x3 TsdCone(vec3 p, vec2 c, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+  // c must be normalized
+  float q = length(p.xy);
+  res[0].x = dot(c,vec2(q,p.z));
+  return res;
+}
+
+// Plane - signed - exact
+mat2x3 TsdPlane(vec3 p, vec4 n, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+  // n must be normalized
+  res[0].x = dot(p,n.xyz) + n.w;
+  return res;
+}
+
+// Hexagonal Prism - signed - exact
+mat2x3 TsdHexPrism(vec3 p, vec2 h, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+  vec3 q = abs(p);
+  res[0].x = max(q.z-h.y,max((q.x*0.866025+q.y*0.5),q.y)-h.x);
+  return res;
+}
+
+// Triangular Prism - signed - exact
+mat2x3 TsdTriPrism(vec3 p, vec2 h, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+  vec3 q = abs(p);
+  res[0].x = max(q.z-h.y,max(q.x*0.866025+p.y*0.5,-p.y)-h.x*0.5);
+  return res;
+}
+
+// Capsule / Line - signed - exact
+mat2x3 TsdCapsule(vec3 p, vec3 a, vec3 b, float r, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+  vec3 pa = p - a, ba = b - a;
+  float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
+  res[0].x = length( pa -ba*h ) - r;
+  return res;
+}
+
+// Capped cylinder - signed - exact
+mat2x3 TsdCappedCylinder(vec3 p, vec2 h, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+  vec2 d = abs(vec2(length(p.xz),p.y)) - h;
+  res[0].x = min(max(d.x,d.y),0.0) + length(max(d,0.0));
+  return res;
+}
+
+// Capped Cone - signed - bound
+mat2x3 TsdCappedCone(vec3 p, vec3 c, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+  vec2 q = vec2( length(p.xz), p.y );
+  vec2 v = vec2( c.z*c.y/c.x, -c.z );
+  vec2 w = v - q;
+  vec2 vv = vec2( dot(v,v), v.x*v.x );
+  vec2 qv = vec2( dot(v,w), v.x*w.x );
+  vec2 d = max(qv,0.0)*qv/vv;
+  res[0].x = sqrt( dot(w,w) - max(d.x,d.y) ) * sign(max(q.y*v.x-q.x*v.y,w.y));
+  return res;
+}
+
+// Ellipsoid - signed - bound
+mat2x3 TsdEllipsoid(vec3 p, vec3 r, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+  res[0].x = (length( p/r ) - 1.0) * min(min(r.x,r.y),r.z);
+  return res;
+}
+
+/*
+ * Unsigned distance fields
+ */
+// Box unsigned exact
+mat2x3 TudBox(vec3 p, vec3 b, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+    res[0].x = length(max(abs(p)-b,0.0));
+    return res;
+}
+
+// Round Box unsigned exact
+
+mat2x3 TudRoundBox(vec3 p, vec3 b, float r, vec4 color)
+{
+    mat2x3 res;
+    res[1] = color.xyz;
+    res[0].y = color.w;
+    res[0].x = length(max(abs(p)-b,0.0))-r;
+    return res;
+}
+//float g(float a, float b)
+//{
+//  return a + b + sqrt(a*a + b*b);
+//}
+
+//float w1(float a, float b, float t)
+//{
+//  return g(b, t-1) / (g(a, -t) + g(b, t-1));
+//}
+
+//float w2(float a, float b, float t)
+//{
+//  return g(a, -t) / (g(a, -t) + g(b, t-1));
+//}
+
+//vec3 lerp(vec4 a, vec4 b, float t)
+//{
+////  return t*a.yzw + (1-t)*b.yzw;
+//  return w1(a.x, b.x, t)*a.yzw + w2(a.x, b.x, t)*b.yzw;
+//}
+
+mat2x3 TopBlend(mat2x3 a, mat2x3 b, float k)
+{
+    mat2x3 res;
+    float h = clamp(0.5+0.5*(b[0].x-a[0].x)/k, 0.0, 1.0);
+    float d =  mix(a[0].x, b[0].x, h) - k*h*(1.0-h);
+    res[1] = lerp(vec4(a[0].x, a[1].xyz),vec4(b[0].x, b[1].xyz), h); // SHOULD BE VEC4
+  // Lelp transparency like color !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    ///res[0].y = mix(a[0].y, b[0].y, h); // TRANSPARENCY TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    res[0].x = d; // Using mix for now
+    return res;
+}
+
+
+mat2x3 TopUnion(mat2x3 a, mat2x3 b) // MIXING
+{
+  return a[0].x <= b[0].x ? a : b;
+}
+
+mat2x3 TopIntersection(mat2x3 a, mat2x3 b) // MIXING
+{
+  return a[0].x >= b[0].x ? a : b;
+}
+
+mat2x3 TopSubtraction(mat2x3 a, mat2x3 b)
+{
+  if (-a[0].x >= b[0].x) {
+      return mat2x3(-a[0].x, a[0].y, a[0].z, a[1].x, a[1].y, a[1].z);
+  }
+  else return b;
+
+  //return -a[0].x >= b[0].x ? mat2x3(-a[0].x, a[0].y, a[0].z,
+  //                                  a[1].x, a[1].y, a[1].z) : b;
+}
+
+vec3 TopRepetition(vec3 p, vec3 c) // What to do with this? // Still the quuestion
+{
+  vec3 q = mod(p,c)-0.5*c;
+  return q;
+}
+
+// ------------------------------- TRANSPARENCY MOD END ----------------------------------------
+// Mapping with transparency
+mat2x3 Tmap(vec3 _position) // mat
+{
+    mat2x3 sphere1, sphere2, pos;

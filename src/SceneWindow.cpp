@@ -44,7 +44,7 @@ namespace hsitho
     m_vao->create();
     m_vao->bind();
 
-    float vertices[] = {
+    float vertices[] = { // _IS: ahh apparently screen_quad, first shader (might find this useful later)
       // First triangle
       -1.0f,  1.0f,
       -1.0f, -1.0f,
@@ -135,8 +135,8 @@ namespace hsitho
     m_shaderMan->getProgram()->setAttributeBuffer(uvLocation, GL_FLOAT, 6*2*sizeof(float), 2, 0);
     m_shaderMan->getProgram()->setUniformValue("u_GlobalTime", getTimePassed());
     m_shaderMan->getProgram()->setUniformValueArray("u_Resolution", resolution, 1, 2);
-		m_shaderMan->getProgram()->setUniformValueArray("u_Camera", glm::value_ptr((m_camDist*m_cam)), 1, 3);
-		m_shaderMan->getProgram()->setUniformValueArray("u_CameraUp", glm::value_ptr(m_camU), 1, 3);
+    m_shaderMan->getProgram()->setUniformValueArray("u_Camera", glm::value_ptr((m_camDist*m_cam)), 1, 3);
+    m_shaderMan->getProgram()->setUniformValueArray("u_CameraUp", glm::value_ptr(m_camU), 1, 3);
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -150,51 +150,55 @@ namespace hsitho
 		++m_frames;
   }
 
+  // WORK _IS
   void SceneWindow::nodeChanged(std::unordered_map<QUuid, std::shared_ptr<Node>> _nodes)
   {
     if(m_outputNode == nullptr)
     {
       for(auto node : _nodes)
       {
-        if(node.second.get()->nodeDataModel()->getShaderCode() == "final")
+        if(node.second.get()->nodeDataModel()->getShaderCode() == "final") // _IS diving to the function
         {
           m_outputNode = node.second.get();
           break;
         }
       }
     }
-    if(m_outputNode != nullptr)
-		{
-      std::string shadercode;
-      Mat4f translation;
-			hsitho::Expressions::flushUnknowns();
-      for(auto connection : m_outputNode->nodeState().connection(PortType::In, 0))
-      {
-        if(connection.get() && connection->getNode(PortType::Out).lock())
-        {
-          shadercode += recurseNodeTree(connection->getNode(PortType::Out).lock(), translation);
-        }
-      }
+    if(m_outputNode != nullptr) // _IS !!! Shader compilation
+    {
+        // Create shader containter and remove unknows
+        std::string shadercode;
+        Mat4f translation;
+        hsitho::Expressions::flushUnknowns();
 
-      if(shadercode != "") // _IS TODO -> Change the shader shit
-      {
-				std::string fragmentShader = m_shaderStart;
 
-				fragmentShader += hsitho::Expressions::getUnknowns();
-				fragmentShader += "pos = ";
-				fragmentShader += hsitho::Expressions::replaceUnknowns(shadercode);
-				fragmentShader += ";";
+        for(auto connection : m_outputNode->nodeState().connection(PortType::In, 0))
+          {
+            if(connection.get() && connection->getNode(PortType::Out).lock())
+            {
+              shadercode += recurseNodeTree(connection->getNode(PortType::Out).lock(), translation);
+            }
+          }
 
-        fragmentShader += m_shaderEnd;
-        std::cout << fragmentShader<< "\n"; // Deconstruct
+          if(shadercode != "") // _IS WIP -> Change the shader
+          {
+                    std::string fragmentShader = m_shaderStart;
 
-        std::ifstream testFragShader("shaders/blank.frag");
-        std::string tfshader = std::string((std::istreambuf_iterator<char>(testFragShader)), std::istreambuf_iterator<char>());
-        m_shaderMan->updateShader(tfshader.c_str());
+                    fragmentShader += hsitho::Expressions::getUnknowns(); // _IS Get uknowns TODO: check if the proper functions are arranged to the vector
+                    fragmentShader += "pos = ";
+                    fragmentShader += hsitho::Expressions::replaceUnknowns(shadercode);
+                    fragmentShader += ";";
 
-        //Deconstruct
-        //m_shaderMan->updateShader(fragmentShader.c_str());
-      }
+            fragmentShader += m_shaderEnd;
+            std::cout << fragmentShader<< "\n"; // Deconstruct
+
+            std::ifstream testFragShader("shaders/blank.frag");
+            std::string tfshader = std::string((std::istreambuf_iterator<char>(testFragShader)), std::istreambuf_iterator<char>());
+            m_shaderMan->updateShader(tfshader.c_str());
+
+            //Deconstruct
+            //m_shaderMan->updateShader(fragmentShader.c_str());
+          }
       //std::cout<<"shadercode from: Node Changed \n"<< shadercode << "\n"; // Deconstruct
     }
   }
