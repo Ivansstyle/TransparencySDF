@@ -102,7 +102,7 @@ std::vector<QWidget *> ConePrimitiveDataModel::embeddedWidget()
 std::string ConePrimitiveDataModel::getShaderCode()
 {
 	if(m_transform == "")
-		return "sdCappedCone(_position, vec3(" + m_dimensions.m_x + ", " + m_dimensions.m_y + ", " + m_dimensions.m_z + "), vec3(clamp(" + m_color.m_x + ", 0.0, 1.0), clamp(" + m_color.m_y + ", 0.0, 1.0), clamp(" + m_color.m_z + ", 0.0, 1.0)))";
+        return "sdCappedCone(_position, vec3(" + m_dimensions.m_x + ", " + m_dimensions.m_y + ", " + m_dimensions.m_z + "), vec4(clamp(" + m_color.m_x + ", 0.0, 1.0), clamp(" + m_color.m_y + ", 0.0, 1.0), clamp(" + m_color.m_z + ", 0.0, 1.0), clamp(" + m_color.m_w + ", 0.0, 1.0)))";
 	else
-		return "sdCappedCone(vec3(" + m_transform + " * vec4(_position, 1.0)).xyz, vec3(" + m_dimensions.m_x + ", " + m_dimensions.m_y + ", " + m_dimensions.m_z + "), vec3(clamp(" + m_color.m_x + ", 0.0, 1.0), clamp(" + m_color.m_y + ", 0.0, 1.0), clamp(" + m_color.m_z + ", 0.0, 1.0)))";
+        return "sdCappedCone(vec3(" + m_transform + " * vec4(_position, 1.0)).xyz, vec3(" + m_dimensions.m_x + ", " + m_dimensions.m_y + ", " + m_dimensions.m_z + "), vec4(clamp(" + m_color.m_x + ", 0.0, 1.0), clamp(" + m_color.m_y + ", 0.0, 1.0), clamp(" + m_color.m_z + ", 0.0, 1.0), clamp(" + m_color.m_w + ", 0.0, 1.0)))";
 }

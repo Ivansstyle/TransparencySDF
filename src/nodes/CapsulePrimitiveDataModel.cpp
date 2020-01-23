@@ -156,7 +156,7 @@ std::vector<QWidget *> CapsulePrimitiveDataModel::embeddedWidget()
 std::string CapsulePrimitiveDataModel::getShaderCode()
 {
   if(m_transform == "")
-		return "sdCapsule(_position, vec3(" + m_startPos.m_x + ", " + m_startPos.m_y + ", " + m_startPos.m_z + "), vec3(" + m_endPos.m_x + ", " + m_endPos.m_y + ", " + m_endPos.m_z + "), " + m_r->text().toStdString() + ",  vec3(" + m_color.m_x + ", " + m_color.m_y + ", " + m_color.m_z + "))";
+        return "sdCapsule(_position, vec3(" + m_startPos.m_x + ", " + m_startPos.m_y + ", " + m_startPos.m_z + "), vec3(" + m_endPos.m_x + ", " + m_endPos.m_y + ", " + m_endPos.m_z + "), " + m_r->text().toStdString() + ",  vec4(" + m_color.m_x + ", " + m_color.m_y + ", " + m_color.m_z + ", " + m_color.m_w + "))";
 	else
-		return "sdCapsule(vec3(" + m_transform + " * vec4(_position, 1.0)).xyz, vec3(" + m_startPos.m_x + ", " + m_startPos.m_y + ", " + m_startPos.m_z + "), vec3(" + m_endPos.m_x + ", " + m_endPos.m_y + ", " + m_endPos.m_z + "), " + m_r->text().toStdString() + ",  vec3(" + m_color.m_x + ", " + m_color.m_y + ", " + m_color.m_z + "))";
+        return "sdCapsule(vec3(" + m_transform + " * vec4(_position, 1.0)).xyz, vec3(" + m_startPos.m_x + ", " + m_startPos.m_y + ", " + m_startPos.m_z + "), vec3(" + m_endPos.m_x + ", " + m_endPos.m_y + ", " + m_endPos.m_z + "), " + m_r->text().toStdString() + ",  vec4(" + m_color.m_x + ", " + m_color.m_y + ", " + m_color.m_z + ", " + m_color.m_w + "))";
 }

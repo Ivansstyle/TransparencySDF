@@ -164,7 +164,7 @@ std::vector<QWidget *> CylinderPrimitiveDataModel::embeddedWidget()
 std::string CylinderPrimitiveDataModel::getShaderCode()
 {
 	if(m_transform == "")
-		return "sdCappedCylinder(_position, vec2(" + m_r->text().toStdString() + ", " + m_height->text().toStdString() + "), vec3(" + m_color.m_x + ", " + m_color.m_y + ", " + m_color.m_z + "))";
+        return "sdCappedCylinder(_position, vec2(" + m_r->text().toStdString() + ", " + m_height->text().toStdString() + "), vec4(" + m_color.m_x + ", " + m_color.m_y + ", " + m_color.m_z + ", " + m_color.m_w + "))";
 	else
-		return "sdCappedCylinder(vec3(" + m_transform + " * vec4(_position, 1.0)).xyz, vec2(" + m_r->text().toStdString() + ", " + m_height->text().toStdString() + "), vec3(" + m_color.m_x + ", " + m_color.m_y + ", " + m_color.m_z + "))";
+        return "sdCappedCylinder(vec3(" + m_transform + " * vec4(_position, 1.0)).xyz, vec2(" + m_r->text().toStdString() + ", " + m_height->text().toStdString() + "), vec3(" + m_color.m_x + ", " + m_color.m_y + ", " + m_color.m_z + ", " + m_color.m_w + "))";
 }

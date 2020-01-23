@@ -164,7 +164,7 @@ std::vector<QWidget *> TorusPrimitiveDataModel::embeddedWidget()
 std::string TorusPrimitiveDataModel::getShaderCode()
 {
   if(m_transform == "")
-		return "sdTorus(_position, vec2(" + m_outerR->text().toStdString() + ", " + m_ringR->text().toStdString() + "), vec3(" + m_color.m_x + ", " + m_color.m_y + ", " + m_color.m_z + "))";
+        return "sdTorus(_position, vec2(" + m_outerR->text().toStdString() + ", " + m_ringR->text().toStdString() + "), vec4(" + m_color.m_x + ", " + m_color.m_y + ", " + m_color.m_z + ", " + m_color.m_w + "))";
 	else
-		return "sdTorus(vec3(" + m_transform + " * vec4(_position, 1.0)).xyz, vec2(" + m_outerR->text().toStdString() + ", " + m_ringR->text().toStdString() + "), vec3(" + m_color.m_x + ", " + m_color.m_y + ", " + m_color.m_z + "))";
+        return "sdTorus(vec3(" + m_transform + " * vec4(_position, 1.0)).xyz, vec2(" + m_outerR->text().toStdString() + ", " + m_ringR->text().toStdString() + "), vec4(" + m_color.m_x + ", " + m_color.m_y + ", " + m_color.m_z + ", " + m_color.m_w + "))";
 }

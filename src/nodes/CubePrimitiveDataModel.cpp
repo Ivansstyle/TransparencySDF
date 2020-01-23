@@ -110,7 +110,7 @@ std::vector<QWidget *> CubePrimitiveDataModel::embeddedWidget()
 std::string CubePrimitiveDataModel::getShaderCode()
 {
 	if(m_transform == "")
-		return "sdBox(_position, vec3(" + m_dimensions.m_x + ", " + m_dimensions.m_y + ", " + m_dimensions.m_z + "), vec3(" + m_color.m_x + ", " + m_color.m_y + ", " + m_color.m_z + "))";
+        return "sdBox(_position, vec3(" + m_dimensions.m_x + ", " + m_dimensions.m_y + ", " + m_dimensions.m_z + "), vec4(" + m_color.m_x + ", " + m_color.m_y + ", " + m_color.m_z + ", " + m_color.m_w + "))";
 	else
-		return "sdBox(vec3(" + m_transform + " * vec4(_position, 1.0)).xyz, vec3(" + m_dimensions.m_x + ", " + m_dimensions.m_y + ", " + m_dimensions.m_z + "), vec3(" + m_color.m_x + ", " + m_color.m_y + ", " + m_color.m_z + "))";
+        return "sdBox(vec3(" + m_transform + " * vec4(_position, 1.0)).xyz, vec3(" + m_dimensions.m_x + ", " + m_dimensions.m_y + ", " + m_dimensions.m_z + "), vec4(" + m_color.m_x + ", " + m_color.m_y + ", " + m_color.m_w + "))";
 }

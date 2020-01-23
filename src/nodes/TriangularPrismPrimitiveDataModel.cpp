@@ -164,7 +164,7 @@ std::vector<QWidget *> TriangularPrismPrimitiveDataModel::embeddedWidget()
 std::string TriangularPrismPrimitiveDataModel::getShaderCode()
 {
 	if(m_transform == "")
-		return "sdTriPrism(_position, vec2(" + m_l->text().toStdString() + ", " + m_height->text().toStdString() + "), vec3(" + m_color.m_x + ", " + m_color.m_y + ", " + m_color.m_z + "))";
+        return "sdTriPrism(_position, vec2(" + m_l->text().toStdString() + ", " + m_height->text().toStdString() + "), vec4(" + m_color.m_x + ", " + m_color.m_y + ", " + m_color.m_z + ", " + m_color.m_w + "))";
 	else
-		return "sdTriPrism(vec3(" + m_transform + " * vec4(_position, 1.0)).xyz, vec2(1.0, 2.0), vec3(" + m_color.m_x + ", " + m_color.m_y + ", " + m_color.m_z + "))";
+        return "sdTriPrism(vec3(" + m_transform + " * vec4(_position, 1.0)).xyz, vec2(1.0, 2.0), vec3(" + m_color.m_x + ", " + m_color.m_y + ", " + m_color.m_z + ", " + m_color.m_w + "))";
 }

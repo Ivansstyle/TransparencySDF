@@ -21,8 +21,8 @@ namespace hsitho
     m_camL(glm::vec3(1.f, 0.f, 0.f)),
 		m_camDist(15.f)
   {
-    std::ifstream s("shaders/shader_IS.begin");
-    std::ifstream e("shaders/shader_IS.end");
+    std::ifstream s("shaders/shader_IS2.begin");
+    std::ifstream e("shaders/shader_IS2.end");
     m_shaderStart = std::string((std::istreambuf_iterator<char>(s)), std::istreambuf_iterator<char>());
     m_shaderEnd = std::string((std::istreambuf_iterator<char>(e)), std::istreambuf_iterator<char>());
   }
@@ -36,6 +36,7 @@ namespace hsitho
   {
     GLWindow::initializeGL();
 
+    //m_shaderMan->createShader("ScreenQuad", "screenQuad.vert", "blank.frag");
     m_shaderMan->createShader("ScreenQuad", "screenQuad.vert", "blank.frag");
     m_shaderMan->useShader("ScreenQuad");
 
