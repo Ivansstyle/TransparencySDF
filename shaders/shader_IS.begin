@@ -35,155 +35,13 @@ struct TraceResult
 
 
 #define TRANSPARENCY_SAMPLES 128.0f
-
 /*
  * Signed distance field functions
  * These function were originally written by Inigo Quilez
  * Modified by Teemu Lindborg where needed.
  * [Accessed Decemeber 2016] Available from: http://iquilezles.org/www/articles/distfunctions/distfunctions.htm
  */
-// --------------------- OLD IMPLEMENTATION DELETED -------------------------------
-// Sphere
-
-// Box signed exactr
-
-// Box fast
-
-// Torus - signed - exact
-
-// Cylinder - signed - exact
-
-//Cone - signed - exact
-
-// _IS I gave up on deleting
-
-// vec4 sdCone(vec3 p, vec2 c, vec3 color)
-// {
-//   // c must be normalized
-//   float q = length(p.xy);
-//   return vec4(dot(c,vec2(q,p.z)), color);
-// }
-
-// // Plane - signed - exact
-// vec4 sdPlane(vec3 p, vec4 n, vec3 color)
-// {
-//   // n must be normalized
-//   return vec4(dot(p,n.xyz) + n.w, color);
-// }
-
-// // Hexagonal Prism - signed - exact
-// vec4 sdHexPrism(vec3 p, vec2 h, vec3 color)
-// {
-//   vec3 q = abs(p);
-//   return vec4(max(q.z-h.y,max((q.x*0.866025+q.y*0.5),q.y)-h.x), color);
-// }
-
-// // Triangular Prism - signed - exact
-// vec4 sdTriPrism(vec3 p, vec2 h, vec3 color)
-// {
-//   vec3 q = abs(p);
-//   return vec4(max(q.z-h.y,max(q.x*0.866025+p.y*0.5,-p.y)-h.x*0.5), color);
-// }
-
-// // Capsule / Line - signed - exact
-// vec4 sdCapsule(vec3 p, vec3 a, vec3 b, float r, vec3 color)
-// {
-//   vec3 pa = p - a, ba = b - a;
-//   float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
-//   return vec4(length( pa - ba*h ) - r, color);
-// }
-
-// // Capped cylinder - signed - exact
-// vec4 sdCappedCylinder(vec3 p, vec2 h, vec3 color)
-// {
-//   vec2 d = abs(vec2(length(p.xz),p.y)) - h;
-//   return vec4(min(max(d.x,d.y),0.0) + length(max(d,0.0)), color);
-// }
-
-// // Capped Cone - signed - bound
-// vec4 sdCappedCone(vec3 p, vec3 c, vec3 color)
-// {
-//   vec2 q = vec2( length(p.xz), p.y );
-//   vec2 v = vec2( c.z*c.y/c.x, -c.z );
-//   vec2 w = v - q;
-//   vec2 vv = vec2( dot(v,v), v.x*v.x );
-//   vec2 qv = vec2( dot(v,w), v.x*w.x );
-//   vec2 d = max(qv,0.0)*qv/vv;
-//   return vec4(sqrt( dot(w,w) - max(d.x,d.y) ) * sign(max(q.y*v.x-q.x*v.y,w.y)), color);
-// }
-
-// // Ellipsoid - signed - bound
-// vec4 sdEllipsoid(vec3 p, vec3 r, vec3 color)
-// {
-//   return vec4((length( p/r ) - 1.0) * min(min(r.x,r.y),r.z), color);
-// }
-
-// /*
-//  * Unsigned distance fields
-//  */
-// // Box unsigned exact
-// vec4 udBox(vec3 p, vec3 b, vec3 color)
-// {
-//   return vec4(length(max(abs(p)-b,0.0)), color);
-// }
-
-// // Round Box unsigned exact
-
-// vec4 udRoundBox(vec3 p, vec3 b, float r, vec3 color)
-// {
-//   return vec4(length(max(abs(p)-b,0.0))-r, color);
-// }
-
-// float g(float a, float b)
-// {
-//   return a + b + sqrt(a*a + b*b);
-// }
-
-// float w1(float a, float b, float t)
-// {
-//   return g(b, t-1) / (g(a, -t) + g(b, t-1));
-// }
-
-// float w2(float a, float b, float t)
-// {
-//   return g(a, -t) / (g(a, -t) + g(b, t-1));
-// }
-
-// vec3 lerp(vec4 a, vec4 b, float t)
-// {
-// //  return t*a.yzw + (1-t)*b.yzw;
-//   return w1(a.x, b.x, t)*a.yzw + w2(a.x, b.x, t)*b.yzw;
-// }
-
-// vec4 opBlend(vec4 a, vec4 b, float k)
-// {
-//   float h = clamp(0.5+0.5*(b.x-a.x)/k, 0.0, 1.0);
-//   float d = mix(b.x, a.x, h) - k*h*(1.0-h);
-//   return vec4(d, lerp(a, b, h));
-// }
-
-// vec4 opUnion(vec4 a, vec4 b)
-// {
-//   return a.x <= b.x ? a : b;
-// }
-
-// vec4 opIntersection(vec4 a, vec4 b)
-// {
-//   return a.x >= b.x ? a : b;
-// }
-
-// vec4 opSubtraction(vec4 a, vec4 b)
-// {
-//   return -a.x >= b.x ? vec4(-a.x, a.yzw) : b;
-// }
-
-// vec3 opRepetition(vec3 p, vec3 c)
-// {
-//   vec3 q = mod(p,c)-0.5*c;
-//   return q;
-// }
-
-// --------------------- OLD IMPLEMENTATION END -----------------------------
+// ------------------------------------ OLD IMPLEMENTATION DELETED --------------------------------
 
 /**
   * Modified by Ivans Saponenko (2017-2019)
@@ -201,17 +59,16 @@ struct TraceResult
 
 /*
 *   Mat2x3 functions returns:
-*   
-*   add final ray lenght 
-*
-*
-*
+*   -------------------------------
+*  |x = distance      x \         |
+*  |y = transparency  y |> color  |
+*  |z = reserved      z /         |
+*  |    for                       |
+*  |    refraction                |
+*  --------------------------------
 */
-
-
-// _IS ---> TODO: Check the code to send color as a vec4 instead of vec 4 in the shader evaluation 
+// NOTES: 
 // _IS ---> Make sure transparency is mixed exactly like color of the object !! Hope it works 
-
 
 // Sphere // EDITED
 mat2x3 sdSphere(vec3 p, float s, vec4 color) // color as vec4
@@ -394,49 +251,58 @@ mat2x3 udRoundBox(vec3 p, vec3 b, float r, vec4 color)
     return res;
 }
 
-// _IS do I need this? 
 
-//float g(float a, float b)
-//{
-//  return a + b + sqrt(a*a + b*b);
-//}
+// Smart lerp function that doesn't work the way it supposed to _IS TODO: fix
+float g(float a, float b)
+{
+ return a + b + sqrt(a*a + b*b);
+}
 
-//float w1(float a, float b, float t)
-//{
-//  return g(b, t-1) / (g(a, -t) + g(b, t-1));
-//}
+float w1(float a, float b, float t)
+{
+ return g(b, t-1) / (g(a, -t) + g(b, t-1));
+}
 
-//float w2(float a, float b, float t)
-//{
-//  return g(a, -t) / (g(a, -t) + g(b, t-1));
-//}
+float w2(float a, float b, float t)
+{
+ return g(a, -t) / (g(a, -t) + g(b, t-1));
+}
 
-//vec3 lerp(vec4 a, vec4 b, float t)
-//{
-////  return t*a.yzw + (1-t)*b.yzw;
-//  return w1(a.x, b.x, t)*a.yzw + w2(a.x, b.x, t)*b.yzw;
-//}
+vec3 lerp(vec4 a, vec4 b, float t)
+{
+  ////  return t*a.yzw + (1-t)*b.yzw; ?? 
+  return w1(a.x, b.x, t)*a.yzw + w2(a.x, b.x, t)*b.yzw;
+}
 
 // -------------------- OPERATIONS --------------------
-
-
 mat2x3 opBlend(mat2x3 a, mat2x3 b, float k)
 {
-    mat2x3 res;
-    float h = clamp(0.5+0.5*(b[0].x-a[0].x)/k, 0.0, 1.0);
-    float d =  mix(a[0].x, b[0].x, h) - k*h*(1.0-h);
-    res[1] = lerp(vec4(a[0].x, a[1].xyz),vec4(b[0].x, b[1].xyz), h); // SHOULD BE VEC4
-  // Lelp transparency like color !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     mat2x3 res;
+    vec4 _a = vec4(a[0].x, vec3(a[1]));
+    vec4 _b = vec4(b[0].x, vec3(b[1]));
+    
+    float h = clamp(0.5+0.5*(_b.x-_a.x)/k, 0.0, 1.0);
+    float d = mix(_b.x, _a.x, h) - k*h*(1.0-h);
 
-    ///res[0].y = mix(a[0].y, b[0].y, h); // TRANSPARENCY TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    res[0].x = d; // Using mix for now
+    vec3 color = lerp(_a, _b, h);
+    float transparency = lerp(_a, _b, h).x;
+
+    vec4 _res = vec4(d, lerp(_a, _b, h));
+    
+    res[0].x = d;
+    res[0].y = transparency; 
+    res[1] = color; 
+
     return res;
 }
 
 
 mat2x3 opUnion(mat2x3 a, mat2x3 b) // MIXING
 {
-  return a[0].x <= b[0].x ? a : b;
+  mat2x3 res; 
+  res = a[0].x <= b[0].x ? a : b;
+
+  return res; 
 }
 
 mat2x3 opIntersection(mat2x3 a, mat2x3 b) // MIXING
@@ -450,9 +316,6 @@ mat2x3 opSubtraction(mat2x3 a, mat2x3 b)
       return mat2x3(-a[0].x, a[0].y, a[0].z, a[1].x, a[1].y, a[1].z);
   }
   else return b;
-
-  //return -a[0].x >= b[0].x ? mat2x3(-a[0].x, a[0].y, a[0].z,
-  //                                  a[1].x, a[1].y, a[1].z) : b;
 }
 
 vec3 opRepetition(vec3 p, vec3 c) // What to do with this? // Still the quuestion
@@ -463,9 +326,7 @@ vec3 opRepetition(vec3 p, vec3 c) // What to do with this? // Still the quuestio
 
 // ------------------------------- TRANSPARENCY MOD END ----------------------------------------
 // Mapping with transparency
-mat2x3 Tmap(vec3 _position) // mat
+mat2x3 map(vec3 _position) // mat
 {
-    mat2x3
-    pos;
-    //sphere1,
-    //sphere2,
+    mat2x3 pos;
+

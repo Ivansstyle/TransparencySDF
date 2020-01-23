@@ -21,8 +21,8 @@ namespace hsitho
     m_camL(glm::vec3(1.f, 0.f, 0.f)),
 		m_camDist(15.f)
   {
-    std::ifstream s("shaders/shader.begin");
-    std::ifstream e("shaders/shader.end");
+    std::ifstream s("shaders/shader_IS.begin");
+    std::ifstream e("shaders/shader_IS.end");
     m_shaderStart = std::string((std::istreambuf_iterator<char>(s)), std::istreambuf_iterator<char>());
     m_shaderEnd = std::string((std::istreambuf_iterator<char>(e)), std::istreambuf_iterator<char>());
   }
@@ -189,12 +189,15 @@ namespace hsitho
 
         fragmentShader += m_shaderEnd;
 
+
+        //std::cout<<"\nShader Compiled | SHADERCODE:\n" <<fragmentShader<<"\n";
+
         m_shaderMan->updateShader(fragmentShader.c_str());
         }
         }
     }
 
-  // _IS Testing implementation
+//  // _IS Testing implementation
 
 //  void SceneWindow::nodeChanged(std::unordered_map<QUuid, std::shared_ptr<Node>> _nodes)
 //  {
@@ -244,9 +247,10 @@ namespace hsitho
 //            //Deconstruct
 //            //m_shaderMan->updateShader(fragmentShader.c_str());
 //          }
-//      //std::cout<<"shadercode from: Node Changed \n"<< shadercode << "\n"; // Deconstruct
+//      std::cout<<"shadercode from: Node Changed \n"<< shadercode << "\n"; // Deconstruct
 //    }
 //  }
+
 
 
 	std::string SceneWindow::recurseNodeTree(std::shared_ptr<Node> _node, Mat4f _t, PortIndex portIndex, unsigned int _cp)

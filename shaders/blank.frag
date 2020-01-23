@@ -438,23 +438,35 @@ mat2x3 TudRoundBox(vec3 p, vec3 b, float r, vec4 color)
 //  return w1(a.x, b.x, t)*a.yzw + w2(a.x, b.x, t)*b.yzw;
 //}
 
-mat2x3 TopBlend(mat2x3 a, mat2x3 b, float k)
+mat2x3 TopBlend(mat2x3 a, mat2x3 b, float k) // WORKS
 {
     mat2x3 res;
-    float h = clamp(0.5+0.5*(b[0].x-a[0].x)/k, 0.0, 1.0);
-    float d =  mix(a[0].x, b[0].x, h) - k*h*(1.0-h);
-    res[1] = lerp(vec4(a[0].x, a[1].xyz),vec4(b[0].x, b[1].xyz), h); // SHOULD BE VEC4
-  // Lelp transparency like color !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    vec4 _a = vec4(a[0].x, vec3(a[1]));
+    vec4 _b = vec4(b[0].x, vec3(b[1]));
+    
+    float h = clamp(0.5+0.5*(_b.x-_a.x)/k, 0.0, 1.0);
+    float d = mix(_b.x, _a.x, h) - k*h*(1.0-h);
 
-    ///res[0].y = mix(a[0].y, b[0].y, h); // TRANSPARENCY TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    res[0].x = d; // Using mix for now
+    vec3 color = lerp(_a, _b, h);
+    float transparency = lerp(_a, _b, h).x;
+
+    vec4 _res = vec4(d, lerp(_a, _b, h));
+    
+    res[0].x = d;
+    res[0].y = transparency; 
+    res[1] = color; 
+
     return res;
 }
 
 
 mat2x3 TopUnion(mat2x3 a, mat2x3 b) // MIXING
 {
-  return a[0].x <= b[0].x ? a : b;
+  mat2x3 res; 
+
+  res = a[0].x <= b[0].x ? a : b;
+
+  return res; 
 }
 
 mat2x3 TopIntersection(mat2x3 a, mat2x3 b) // MIXING
@@ -493,12 +505,14 @@ mat2x3 Tmap(vec3 _position) // mat
     // pos = TopBlend(TsdSphere(_position, 3.0f, vec4(1.f, 1.f, 1.f, 0.0f)),
     //                    TsdSphere(_position + vec3(1.5f), 1.0, vec4(1.f, 1.f, 1.f, 1.f))
     //                    ,1.6f);
-    vec3 _pos1 = _position + vec3(-2,0,0);
-    sphere1 = TsdSphere(_pos1, 2.0f, vec4(1.0f,0.0f,0.0f,1.0f));
-    _pos1 = _position + vec3(1,0,0);
-    sphere2 = TsdSphere(_pos1, 2.0f, vec4(0.0f,0.0f,1.0f,1.0f));
+    vec3 _pos1 = _position + vec3(-2.5f,0,0);
+    sphere1 = TsdSphere(_pos1, 2.0f, vec4(1.0f,0.0f,1.0f,0.5f)); // red
+    _pos1 = _position +      vec3(1.5f,0,0);
+    sphere2 = TsdSphere(_pos1, 2.0f, vec4(1.0f,1.0f,1.0f,1.0f)); // blue
 
-    pos = TopUnion(sphere1, sphere2);
+    //pos = TopUnion(sphere1, sphere2);
+    //pos = TopIntersection(sphere1, sphere2);
+    pos = TopBlend(sphere2, sphere1, 4.f);
       return pos;
 }
 
@@ -532,37 +546,7 @@ mat2x3 createRay(vec3 _origin, vec3 _lookAt, vec3 _upV, vec2 _uv, float _fov, fl
 }
 
 // Sphere tracing the rays with sphrere tracing algorithm 
-TraceResult castRay(mat2x3 _ray)
-{
-  TraceResult trace;
-  trace.t = 1.f;
-  float tmax = 20.f;
-  for(int i = 0; i < 64; ++i) // 64 - max iterations 
-  {
-    vec4 r = map(_ray[0] + trace.t * _ray[1]);
-    trace.d = r.x;
-    trace.color = r.yzw;
-    // CalculateOpacity HOW?
-    trace.o = 0.5f; // Testing
-    if(trace.d <= traceprecision || trace.t > tmax) {
-      break;
-    }
-    trace.t += trace.d;
-  }
-  return trace;
-}
-
-vec3 calcNormal(vec3 _position)
-{
-  vec3 offset = vec3(0.0005, -0.0005, 1.0);
-  vec3 normal = normalize(offset.
-                          xyy*map( _position + offset.xyy ).x +
-                          offset.yyx*map( _position + offset.yyx ).x +
-                          offset.yxy*map( _position + offset.yxy ).x +
-                          offset.xxx*map( _position + offset.xxx ).x);
-  return normalize(normal);
-}
-
+// NOT REALLY LIKE THAT
 /**
  * Ambient occlusion is based on a shadertoy example by Inigo Quilez
  * [Accessed January 2017] Available from: https://www.shadertoy.com/view/Xds3zN
@@ -623,97 +607,56 @@ float softshadow(vec3 ro, vec3 rd, float mint, float tmax)
   return clamp(res, 0.0, 1.0);
 }
 
-// Rendering function
-vec3 render(mat2x3 _ray)
-{
-  TraceResult trace = castRay(_ray); // 1st RayCast
-  vec3 col = renderSky(_ray); 
-
-  if(trace.d <= traceprecision)
-  {
-    vec3 p = _ray[0] + trace.t * _ray[1]; // !!! SURFACE !!!
-    vec3 n = calcNormal(p);
-    vec3 reflection = reflect(_ray[1], n);
-    float intensitySum = 0.f;
-    col = vec3(0.0);
-
-    for(int i = 0; i < 4; ++i) {
-
-      vec3 lightDir = normalize(Lights[i].pos - p);
-
-      float diffuse = clamp(dot(n, lightDir), 0.0, 1.0) * softshadow(p, Lights[i].pos, 0.02, 2.5);
-      float ambient = clamp(0.5 + 0.5*n.y, 0.0, 1.0);
-      float occlusion = calcAO(p, n);
-      float specular = pow(clamp(dot(reflection, lightDir), 0.0, 1.0 ), 16.0);
-
-      vec3 acc = vec3(0.0);
-      acc += 1.40 * diffuse * Lights[i].diffuse;
-      acc += 1.20 * ambient * Lights[i].ambient * occlusion;
-      if(i == 0)
-        acc += 2.00 * specular * Lights[i].specular * diffuse;
-
-      col += trace.color * acc * Lights[i].intensity;
-      intensitySum += Lights[i].intensity;
-    }
-    col /= intensitySum;
-    col = applyFog(col, trace.t/150.f);
-
-    // Vigneting
-    vec2 q = o_FragCoord.xy / u_Resolution.xy;
-    col *= 0.5 + 0.5*pow( 16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.25 );
-  }
-  return vec3( clamp(col, 0.0, 1.0) );
-}
 
 // --------------------- TRANSPARENCY RENDERING ----------------------------------
   
-// if (abs(trace.t -trace.bt) < 1e-3) 
-// {
-//   trace.color = vec3(1.0f, 0.0f,0.0f);
-// }
-// else{
-//   float c = abs(trace.bt-trace.t)/30.0f;
-//   //c = 1.0f-clamp(c, 0.0f, 1.0f);
-//   trace.color = vec3(c);
-// }
 
-// Volume Marching ans sampling
+
+// Volume Marching and sampling
 vec4 marchVolume(mat2x3 _ray, TraceResult _tr) // Returns opacity of the pixel
 {
-    int samples = 512; // Amount of transparency samples
+    int samples = 256; // Amount of transparency samples
     float tmax = 20.f; // MAX RAY DISTANCE
+    vec3 col = vec3(0.0f); // color 
+    float s_transparency = 0.0f; // sample transparency 
+
 
     // Setting a ray for the forward volume marching
     mat2x3 f_ray = _ray;
-    vec3 f_hitpoint = _ray[0] + _tr.d * _ray[1]; 
+    vec3 f_hitpoint = f_ray[0] + _tr.d * f_ray[1]; // CORRECT
 
-   
-    // Revesed ray
+    // Setting a ray for the reversed 
     vec3 bEye = _ray[0] +  _ray[1] * tmax; 
     vec3 bDir = normalize(-_ray[1]); 
     mat2x3 b_ray = mat2x3(bEye, bDir); // Eye moved to the tmax                                       
-    vec3 b_hitpoint = b_ray[0] + _tr.bd * b_ray[1]; 
+    vec3 b_hitpoint = b_ray[0] + _tr.bd * b_ray[1]; // CORRECT
 
-    vec3 col = vec3(0.0f); // 
-    float s_transparency = 0.0f;
 
-    // The size of ray permetrating the object 
-    float marchsize = _tr.bd - _tr.d;  
+    // Vector representing a vector from forwards hitpoint to backwards hitpoint 
+    vec3 marchvector = -(f_hitpoint - b_hitpoint);
 
+    // The length of the ray sampling the object 
+    float marchsize = length(marchvector); // need to check 
+
+    vec3 samplevector = marchvector / (float)samples;
 
     // How big are the samples
-    float samplestep = marchsize / (float)samples;  
+    //float samplestep = 1 / (float)samples;
+    
+    // We start at the forward tracing hitpoint
+    vec3 startpoint = f_hitpoint; 
+
 
     vec3 sum=vec3(0.0f);
     float avg_transparency=0.0f; 
     
-    int miss = 0; // Normalize
+    int miss = 0; // Amount of misses (discarded samples)
     
     for(int i = 0; i < samples; ++i) // Volume march
     { 
-      // There is a problem with the ray direction 
-      vec3 startpoint = f_ray[0] + _tr.d * f_ray[1]; 
-      vec3 samplepoint = startpoint + f_ray[1] * i; 
+      
+      // We go trough the object by 
+      vec3 samplepoint = startpoint + samplevector * i; 
       
       // Color sample
       vec3 s_col=vec3(0.0f);
@@ -723,36 +666,33 @@ vec4 marchVolume(mat2x3 _ray, TraceResult _tr) // Returns opacity of the pixel
 
       // Sample 
       mat2x3 s = Tmap(samplepoint);
-      
-      if(s[0].x>0.0f){
-        // Inside 
-        
-        s_col = vec3(0.0f);
-        s_transparency=0.0f;
-        
-
-      }else{ // Outside
-        
-        s_col = s[1]; 
-        s_transparency = s[0].y; 
+    
+      if(s[0].x>0.0f)
+      {
+        // Outside        
+        s_col = vec3(0.0f); 
+        s_transparency = 0.0f; 
         +miss;
+        
+      }else{ // Inside        
+        s_col = s[1];
+        s_transparency=s[0].y;
       }
-      
-
-      sum+=s_col * s_transparency;
-      avg_transparency += s_transparency; 
+        avg_transparency += s_transparency; 
+        sum+=s_col * s_transparency;
     }
     
-    // Calculate pixel color | something is really wrong 
+    // Calculate pixel color | something is really wrong ¬ still is completely wrong 2020.Jan
     vec3 color = normalize(sum/vec3(avg_transparency)); 
-    float transparency = avg_transparency/(float)samples; 
+    float transparency = avg_transparency/(float)samples-miss; 
 
     // Polishing up and packing
     vec4 result; 
-    
+    transparency = transparency * 10.0f; 
     //Calculating final pixel value 
+    result = vec4(vec3(transparency), 1.f);
     result = vec4(color, transparency);
-
+    //result = vec4(color, 1.0f);
     //Testing Misses alone
     //float contrast = 1.8f; 
     //result = vec4(color, clamp(((float)miss/(float)samples)*contrast,0.0f,1.0f)); // Use trace.o in rendering
@@ -760,7 +700,6 @@ vec4 marchVolume(mat2x3 _ray, TraceResult _tr) // Returns opacity of the pixel
     //Testing color alone 
     //result = vec4(color, 1.0f);
 
-    //Testing transparency alone 
       return result;
 }
 
@@ -773,12 +712,11 @@ TraceResult TcastRay(mat2x3 _ray)
   float tmax = 20.f;
   int numSamples = 64; 
 
-  // Forward raycasting <--------------0
+  // Forward raycasting  0------------>@------------------
   for(int i = 0; i < numSamples; ++i)
   {
     mat2x3 r = Tmap(_ray[0] + trace.t * _ray[1]);
     trace.d = r[0].x;
-    //trace.color = r[1].rgb;
 
     // CalculateOpacity
     if(trace.d <= traceprecision) {
@@ -788,9 +726,8 @@ TraceResult TcastRay(mat2x3 _ray)
    trace.t += trace.d; // Add
   }
 
-  // Backwards Raycasting 0------------> 
-  
-  // Revesed ray
+  // Backwards raycasting --------------@<----------------0 
+  // Revesed ray set
   vec3 bEye = _ray[0] +  _ray[1] * tmax; 
   vec3 bDir = normalize(-_ray[1]); 
   mat2x3 bray = mat2x3(bEye, bDir); // Eye moved to the tmax
@@ -800,7 +737,6 @@ TraceResult TcastRay(mat2x3 _ray)
   {
     mat2x3 r = Tmap(bray[0] + trace.bt * bray[1]); // create a ray from backwards ray to 
     trace.bd = r[0].x;
-    //trace.color = r[1].rgb;
 
     if(trace.bd <= traceprecision) {
       break;
@@ -808,17 +744,6 @@ TraceResult TcastRay(mat2x3 _ray)
     else if(trace.t > tmax) break;
    trace.bt += trace.bd; // Backtrace marker make a step 
   }
-
-// For trace check purposes 
-if (abs(trace.t -trace.bt) < 1e-3) 
-{
-  trace.color = vec3(1.0f, 0.0f,0.0f);
-}
-else{
-  float c = abs(trace.bt-trace.t)/30.0f;
-  c = 1.0f-clamp(c, 0.0f, 1.0f);
-  trace.color = vec3(c);
-}
 
  // Sampling inside the object
   vec4 data = marchVolume(_ray, trace);
@@ -858,7 +783,7 @@ vec3 Trender(mat2x3 _ray)
     
     // Color with transparency
     col = trace.color; 
-    //col = col * trace.o + skyCol * (1.f - trace.o);
+    col = col * trace.o + skyCol * (1.f - trace.o);
 
     for(int i = 0; i < 4; ++i) {
 
@@ -880,23 +805,26 @@ vec3 Trender(mat2x3 _ray)
       col += trace.color * acc * Lights[i].intensity; // Apply lights
 
      
-      //col += 0.01f * acc * Lights[i].intensity;
+      col += 0.01f * acc * Lights[i].intensity;
       intensitySum += Lights[i].intensity;
     }
     col /= intensitySum;
     // opacity ???
-    //col = applyFog(col, trace.t/150.f);
+    col = applyFog(col, trace.t/150.f);
 
     // Vigneting
     vec2 q = o_FragCoord.xy / u_Resolution.xy;
     col *= 0.5 + 0.5*pow( 16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.25 );
 
 
-    //col = trace.color;
+    // Final pixel color composition 
     col = clamp(col*trace.o + skyCol * (1.f - trace.o),0.0,1.0);// Testing !
     
+    // Testing color only
+    //col = trace.color;
+
     // Testing opacity only 
-    col = vec3(clamp(trace.o,0.0,1.0));
+    //col = vec3(clamp(trace.o,0.0,1.0));
   }
 
   return vec3( clamp(col, 0.0, 1.0) );
@@ -921,7 +849,102 @@ void main()
 
 
 /* ---------------------------- TRASHBIN -----------------------------------
+// // Rendering function
 
+
+  TraceResult castRay(mat2x3 _ray)
+{
+  TraceResult trace;
+  trace.t = 1.f;
+  float tmax = 20.f;
+  for(int i = 0; i < 64; ++i) // 64 - max iterations 
+  {
+    vec4 r = Tmap(_ray[0] + trace.t * _ray[1]);
+    trace.d = r.x;
+    trace.color = r.yzw;
+    // CalculateOpacity HOW?
+    trace.o = 0.5f; // Testing
+    if(trace.d <= traceprecision || trace.t > tmax) {
+      break;
+    }
+    trace.t += trace.d;
+  }
+  return trace;
+}
+
+vec3 calcNormal(vec3 _position)
+{
+  vec3 offset = vec3(0.0005, -0.0005, 1.0);
+  vec3 normal = normalize(offset.
+                          xyy*map( _position + offset.xyy ).x +
+                          offset.yyx*map( _position + offset.yyx ).x +
+                          offset.yxy*map( _position + offset.yxy ).x +
+                          offset.xxx*map( _position + offset.xxx ).x);
+  return normalize(normal);
+}
+
+  // For trace check purposes 
+  if (abs(trace.t -trace.bt) < 1e-3) 
+  {
+    trace.color = vec3(1.0f, 0.0f,0.0f);
+  }
+  else{
+    float c = abs(trace.bt-trace.t)/30.0f;
+    c = 1.0f-clamp(c, 0.0f, 1.0f);
+    trace.color = vec3(c);
+  }
+
+// vec3 render(mat2x3 _ray)
+// {
+//   TraceResult trace = castRay(_ray); // 1st RayCast
+//   vec3 col = renderSky(_ray); 
+
+//   if(trace.d <= traceprecision)
+//   {
+//     vec3 p = _ray[0] + trace.t * _ray[1]; // !!! SURFACE !!!
+//     vec3 n = calcNormal(p);
+//     vec3 reflection = reflect(_ray[1], n);
+//     float intensitySum = 0.f;
+//     col = vec3(0.0);
+
+//     for(int i = 0; i < 4; ++i) {
+
+//       vec3 lightDir = normalize(Lights[i].pos - p);
+
+//       float diffuse = clamp(dot(n, lightDir), 0.0, 1.0) * softshadow(p, Lights[i].pos, 0.02, 2.5);
+//       float ambient = clamp(0.5 + 0.5*n.y, 0.0, 1.0);
+//       float occlusion = calcAO(p, n);
+//       float specular = pow(clamp(dot(reflection, lightDir), 0.0, 1.0 ), 16.0);
+
+//       vec3 acc = vec3(0.0);
+//       acc += 1.40 * diffuse * Lights[i].diffuse;
+//       acc += 1.20 * ambient * Lights[i].ambient * occlusion;
+//       if(i == 0)
+//         acc += 2.00 * specular * Lights[i].specular * diffuse;
+
+//       col += trace.color * acc * Lights[i].intensity;
+//       intensitySum += Lights[i].intensity;
+//     }
+//     col /= intensitySum;
+//     col = applyFog(col, trace.t/150.f);
+
+//     // Vigneting
+//     vec2 q = o_FragCoord.xy / u_Resolution.xy;
+//     col *= 0.5 + 0.5*pow( 16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.25 );
+//   }
+//   return vec3( clamp(col, 0.0, 1.0) );
+// }
+
+
+// if (abs(trace.t -trace.bt) < 1e-3) 
+// {
+//   trace.color = vec3(1.0f, 0.0f,0.0f);
+// }
+// else{
+//   float c = abs(trace.bt-trace.t)/30.0f;
+//   //c = 1.0f-clamp(c, 0.0f, 1.0f);
+//   trace.color = vec3(c);
+// }
   
 //TraceResult castRay(mat2x3 _ray)
 //{
