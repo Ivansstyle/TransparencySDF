@@ -3,8 +3,8 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 
-#include "nodeEditor/NodeData.hpp"
-#include "nodeEditor/DataModelRegistry.hpp"
+#include "NodeData.hpp"
+#include "DataModelRegistry.hpp"
 
 #include "ExpressionEvaluator.hpp"
 #include "nodes/DistanceFieldOutputDataModel.hpp"
@@ -125,6 +125,10 @@ void MainWindow::keyPressEvent(QKeyEvent *_event)
     case Qt::Key_L : m_nodes->load(); break;
     default: break;
   }
+}
+void MainWindow::nodeEditorModified(std::unordered_map<QUuid, std::shared_ptr<Node>> nodeMap) {
+    std::cout << "NodeEditorModified\n";
+
 }
 
 MainWindow::~MainWindow()

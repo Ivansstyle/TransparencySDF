@@ -3,10 +3,10 @@
 #include <QMainWindow>
 #include <QColorDialog>
 
-#include "nodeEditor/Node.hpp"
-#include "nodeEditor/NodeGraphicsObject.hpp"
-#include "nodeEditor/FlowView.hpp"
-#include "nodeEditor/FlowScene.hpp"
+#include "Node.hpp"
+#include "NodeGraphicsObject.hpp"
+#include "FlowView.hpp"
+#include "FlowScene.hpp"
 #include "SceneWindow.hpp"
 #include "CubePrimitiveDataModel.hpp"
 
@@ -17,6 +17,7 @@
 /// \date 22/01/17 Updated to NCCA Coding standard
 /// Revision History :
 /// Initial Version 05/10/16
+
 
 namespace Ui
 {

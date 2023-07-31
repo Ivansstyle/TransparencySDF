@@ -488,7 +488,7 @@ TARGET        = hsitho
 first: all
 ####### Build rules
 
-hsitho: ui_mainwindow.h $(OBJECTS)  
+hsitho: include/ui_mainwindow.h $(OBJECTS)
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
 
 Makefile: hsitho.pro /opt/Qt5.12.3/5.12.3/gcc_64/mkspecs/linux-g++/qmake.conf /opt/Qt5.12.3/5.12.3/gcc_64/mkspecs/features/spec_pre.prf \
@@ -4808,7 +4808,7 @@ compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
-compiler_uic_make_all: ui_mainwindow.h
+compiler_uic_make_all: include/ui_mainwindow.h
 compiler_uic_clean:
 	-$(DEL_FILE) ui_mainwindow.h
 ui_mainwindow.h: ui/mainwindow.ui \
@@ -5216,7 +5216,7 @@ obj/mainwindow.o: src/mainwindow.cpp include/mainwindow.hpp \
 		/opt/Qt5.12.3/5.12.3/gcc_64/include/QtGui/qtextcursor.h \
 		/opt/Qt5.12.3/5.12.3/gcc_64/include/QtGui/qtextformat.h \
 		nodeEditor/NodeDataModel.hpp \
-		ui_mainwindow.h \
+		include/ui_mainwindow.h \
 		/opt/Qt5.12.3/5.12.3/gcc_64/include/QtCore/QVariant \
 		/opt/Qt5.12.3/5.12.3/gcc_64/include/QtWidgets/QAction \
 		/opt/Qt5.12.3/5.12.3/gcc_64/include/QtWidgets/qaction.h \

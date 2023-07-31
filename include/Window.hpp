@@ -5,7 +5,7 @@
 #include <QKeyEvent>
 #include <QTime>
 
-#include "nodeEditor/FlowScene.hpp"
+#include "FlowScene.hpp"
 
 /// \file Window.hpp
 /// \brief Simple base class for a Qt OpenGL window, used to inherit from

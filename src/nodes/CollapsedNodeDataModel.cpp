@@ -2,9 +2,9 @@
 #include <QtGui/QDoubleValidator>
 #include <QtGui/QRegExpValidator>
 
-#include "nodeEditor/Connection.hpp"
-#include "nodeEditor/ConnectionGraphicsObject.hpp"
-#include "nodeEditor/NodeGraphicsObject.hpp"
+#include "Connection.hpp"
+#include "ConnectionGraphicsObject.hpp"
+#include "NodeGraphicsObject.hpp"
 
 #include "CollapsedNodeDataModel.hpp"
 #include "MathsDataModels.hpp"

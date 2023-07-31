@@ -5,9 +5,9 @@
 #include <iostream>
 #include <QColorDialog>
 
-#include "nodeEditor/FlowScene.hpp"
-#include "nodeEditor/Node.hpp"
-#include "nodeEditor/NodeDataModel.hpp"
+#include "FlowScene.hpp"
+#include "Node.hpp"
+#include "NodeDataModel.hpp"
 #include "nodes/DistanceFieldData.hpp"
 
 class CollapsedNodeDataModel : public NodeDataModel

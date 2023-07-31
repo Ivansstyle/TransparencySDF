@@ -1,3 +1,4 @@
+#include <QPainterPath>
 #include "ConnectionPainter.hpp"
 
 //#define DEBUG_DRAWING 1

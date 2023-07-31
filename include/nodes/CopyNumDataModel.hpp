@@ -3,7 +3,7 @@
 #include <QtCore/QObject>
 #include <QtWidgets/QLineEdit>
 
-#include "nodeEditor/NodeDataModel.hpp"
+#include "NodeDataModel.hpp"
 #include "nodes/DistanceFieldData.hpp"
 
 class CopyNumDataModel : public NodeDataModel

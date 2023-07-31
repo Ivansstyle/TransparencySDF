@@ -4,7 +4,7 @@
 #include <QtWidgets/QLineEdit>
 #include <iostream>
 
-#include "nodeEditor/NodeDataModel.hpp"
+#include "NodeDataModel.hpp"
 #include "nodes/DistanceFieldData.hpp"
 
 /// \file TriangularPrismPrimitiveDataModel.hpp

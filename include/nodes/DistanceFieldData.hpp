@@ -1,6 +1,6 @@
 #pragma once
 
-#include "nodeEditor/NodeData.hpp"
+#include "NodeData.hpp"
 #include "ExpressionEvaluator.hpp"
 
 /// \file DistanceFieldData.hpp

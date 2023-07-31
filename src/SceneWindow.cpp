@@ -5,8 +5,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "nodeEditor/Node.hpp"
-#include "nodeEditor/NodeDataModel.hpp"
+#include "Node.hpp"
+#include "NodeDataModel.hpp"
 #include "nodes/CollapsedNodeDataModel.hpp"
 #include "SceneWindow.hpp"
 
